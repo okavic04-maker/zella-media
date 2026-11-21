@@ -284,18 +284,22 @@
     if (!btn) return;
     // show the small image + name on phones too, and only show the bar once the page's own buttons are off screen
     if (!bar.classList.contains('zck-mbar')) bar.classList.add('zck-mbar');
-    var own = document.querySelector('.mt-5.flex.flex-col');
-    if (own && own !== mbWatched && 'IntersectionObserver' in window) {
-      if (mbObs) mbObs.disconnect();
-      mbWatched = own;
-      mbObs = new IntersectionObserver(function (es) {
-        es.forEach(function (e) {
-          var b = document.querySelector('section.fixed.inset-x-5 > div.bottom-0.w-full');
-          if (b) b.classList.toggle('zck-mbar-hide', e.isIntersecting || e.boundingClientRect.top > 0);
-        });
-      });
-      mbObs.observe(own);
+    // owner (2026-11-21): show it as soon as the customer scrolls past the page's own "أضف للسلة" a little
+    // (after the first one or two swipes), i.e. once that button has moved up above the bar's area.
+    if (!mbWatched) {
+      mbWatched = true;
+      var check = function () {
+        var b = document.querySelector('section.fixed.inset-x-5 > div.bottom-0.w-full');
+        var a = pageAdd();
+        if (!b) return;
+        var show = !!a && a.getBoundingClientRect().bottom < window.innerHeight - 170;
+        b.classList.toggle('zck-mbar-hide', !show);
+      };
+      window.addEventListener('scroll', check, { passive: true });
+      window.addEventListener('resize', check);
+      mbObs = check;
     }
+    if (mbObs) mbObs();
     var lab = btn.querySelector('p') || btn;
     if (lab.textContent.trim() !== 'أضف للسلة' && lab.textContent.trim() !== 'اتضاف ✓') lab.textContent = 'أضف للسلة';
     if (btn.dataset.zck) return;
