@@ -170,7 +170,7 @@
     openView();
     view.dataset.i = list.length;
     view.innerHTML = '<button type="button" class="zub-x" aria-label="Close">×</button><b class="zub-a">‹</b>'
-      + '<div class="zub-end"><div class="h">Like what you saw?</div><div class="d">Cash on delivery · Free shipping over 1500 EGP</div>'
+      + '<div class="zub-end"><div class="h">Like what you saw?</div><div class="d">Cash on delivery · Free shipping from 2000 EGP</div>'
       + '<a href="/collections/men">Shop Men</a><a href="/collections/women">Shop Women</a></div>';
   }
   function show(i) {
