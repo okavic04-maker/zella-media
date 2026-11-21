@@ -21,6 +21,15 @@
   var css = document.createElement('style');
   css.textContent =
     '.zck-hide{display:none!important}' +
+    '.zck-mbar.zck-mbar-hide{display:none!important}' +
+    '@media(max-width:767px){' +
+    '.zck-mbar>div{padding:10px 12px!important}' +
+    '.zck-mbar .flex-1{gap:10px!important;align-items:center;min-width:0}' +
+    '.zck-mbar .h-16.w-16{display:block!important;width:48px!important;height:48px!important;flex:none;border-radius:10px}' +
+    '.zck-mbar img.h-16{display:block!important;width:48px!important;height:48px!important}' +
+    '.zck-mbar p.font-bold{display:block!important;font-size:14px!important;max-width:120px!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}' +
+    '.zck-mbar .text-xl{font-size:16px!important}' +
+    '.zck-mbar button{padding:12px 18px!important}}' +
     '.zck-lbl{display:block;margin:0 4px 6px;font-size:14px;font-weight:400;color:#4b5563;text-align:right;direction:rtl}' +
     'body.zck-typing .checkout_button{position:static!important}' +
     '.zck-paytitle{background:transparent!important;padding:0!important;cursor:default!important;pointer-events:none}' +
@@ -258,9 +267,53 @@
     });
   }
 
+  // product pages: EasyOrders' own moving buy bar (section.fixed.inset-x-5 > div.bottom-0.w-full) becomes an
+  // add-to-cart bar (owner, 2026-11-21): its button says "أضف للسلة" and clicks the page's own add-to-cart button
+  // instead of going to checkout. Needs the Header line that hid this bar to be removed.
+  function pageAdd() {
+    return [].find.call(document.querySelectorAll('.mt-5.flex.flex-col button'), function (b) {
+      return b.textContent.trim() === 'أضف للسلة' && b.offsetParent;
+    });
+  }
+  var mbObs = null, mbWatched = null;
+  function movingBar() {
+    if (!/^\/products\//.test(location.pathname)) return;
+    var bar = document.querySelector('section.fixed.inset-x-5 > div.bottom-0.w-full');
+    var btn = bar && bar.querySelector('button');
+    if (!btn) return;
+    // show the small image + name on phones too, and only show the bar once the page's own buttons are off screen
+    if (!bar.classList.contains('zck-mbar')) bar.classList.add('zck-mbar');
+    var own = document.querySelector('.mt-5.flex.flex-col');
+    if (own && own !== mbWatched && 'IntersectionObserver' in window) {
+      if (mbObs) mbObs.disconnect();
+      mbWatched = own;
+      mbObs = new IntersectionObserver(function (es) {
+        es.forEach(function (e) {
+          var b = document.querySelector('section.fixed.inset-x-5 > div.bottom-0.w-full');
+          if (b) b.classList.toggle('zck-mbar-hide', e.isIntersecting || e.boundingClientRect.top > 0);
+        });
+      });
+      mbObs.observe(own);
+    }
+    var lab = btn.querySelector('p') || btn;
+    if (lab.textContent.trim() !== 'أضف للسلة' && lab.textContent.trim() !== 'اتضاف ✓') lab.textContent = 'أضف للسلة';
+    if (btn.dataset.zck) return;
+    btn.dataset.zck = '1';
+    btn.addEventListener('click', function (e) {
+      var add = pageAdd();
+      if (!add) return; // no add-to-cart on this page: let the theme do its normal buy
+      e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation();
+      add.click();
+      var l = btn.querySelector('p') || btn;
+      l.textContent = 'اتضاف ✓';
+      setTimeout(function () { l.textContent = 'أضف للسلة'; }, 1800);
+    }, true);
+  }
+
   function run() {
     var p = location.pathname;
     roundShip();
+    movingBar();
     if (/^\/checkout/.test(p)) checkout();
     else if (/^\/thanks/.test(p)) thanks();
   }
