@@ -1,5 +1,5 @@
 /* Zella — clearer, shorter checkout (2026-11-21). Only on /checkout and /thanks.
-   1) Total line above the form: "المنتجات X + الشحن Y = Z" (read from the theme's invoice), so the jump from the
+   1) The theme summary above "إتمام الطلب" (items, products, shipping, total) opens by itself once, so the jump from the
       product price is never a surprise.
    2) Shorter page: the free-shipping bar is hidden on checkout (the side cart still shows it); the big
       coupon ("إضافة خصم" / coupon input) is hidden (owner's call, 2026-11-21).
@@ -18,10 +18,8 @@
 
   var css = document.createElement('style');
   css.textContent =
-    '#zck-sum{margin:14px 0 4px;padding:12px 14px;border-radius:12px;background:#f0fdfa;border:1px solid #99f6e4;' +
-    'font-size:15px;line-height:1.7;color:#134e4a;text-align:center;direction:rtl}' +
-    '#zck-sum b{color:#0f172a;font-size:17px}' +
     '.zck-hide{display:none!important}' +
+    'body.zck-typing .checkout_button{position:static!important}' +
     '.zck-paytitle{background:transparent!important;padding:0!important;cursor:default!important;pointer-events:none}' +
     '.zck-paytitle svg{display:none}.zck-paytitle h3{font-size:18px!important}' +
     '#zck-pick{display:block;margin-top:4px;color:#0f766e;font-size:13px;font-weight:700}' +
@@ -130,18 +128,12 @@
   }
 
   function checkout() {
-    // 1) total
-    var total = num('[data-invoice="invoice-total-value"]'), ship = shipping(), html = '';
-    if (total != null && ship != null) {
-      html = ship > 0
-        ? 'المنتجات ' + (total - ship) + ' ج.م + الشحن ' + ship + ' ج.م<br>الإجمالي <b>' + total + ' ج.م</b>'
-        : 'الشحن مجاني 🎉<br>الإجمالي <b>' + total + ' ج.م</b>';
-    }
-    var box = document.getElementById('zck-sum'), anchor = leaf(/يرجى ادخال معلوماتك/);
-    if (html && anchor) {
-      if (!box) { box = document.createElement('div'); box.id = 'zck-sum'; }
-      if (box.nextSibling !== anchor) anchor.parentNode.insertBefore(box, anchor);
-      if (box.innerHTML !== html) box.innerHTML = html;
+    // 1) total: open the theme's own summary above the order button once (items, products, shipping, total),
+    //    instead of our own box (owner, 2026-11-21). If the customer closes it, it stays closed.
+    var tg = document.querySelector('button.checkout_mobile_total_toggle');
+    if (tg && !tg.dataset.zck && tg.offsetParent) {
+      tg.dataset.zck = '1';
+      if (tg.getAttribute('aria-expanded') === 'false') tg.click();
     }
 
     // 2) shorter page: free-shipping bar off, coupon as a small link
@@ -185,6 +177,25 @@
 
     // 6) back button sheet
     trapBack();
+
+    // 7) keyboard: while a field is focused the sticky order bar (≈124px) covered the field being typed on small
+    //    phones (tested 360px wide with ~350px left above the keyboard). Unstick it while typing and keep the field
+    //    in view; it sticks again when the keyboard closes.
+    var form = document.querySelector('.checkout_form');
+    if (form && !form.dataset.zck) {
+      form.dataset.zck = '1';
+      form.addEventListener('focusin', function (e) {
+        if (!/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+        document.body.classList.add('zck-typing');
+        setTimeout(function () { try { e.target.scrollIntoView({ block: 'center' }); } catch (er) {} }, 300);
+      });
+      form.addEventListener('focusout', function () {
+        setTimeout(function () {
+          var a = document.activeElement;
+          if (!a || !form.contains(a) || !/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)) document.body.classList.remove('zck-typing');
+        }, 150);
+      });
+    }
   }
 
   function thanks() {
