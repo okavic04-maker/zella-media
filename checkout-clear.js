@@ -27,9 +27,10 @@
     '.zck-mbar .flex-1{gap:10px!important;align-items:center;min-width:0}' +
     '.zck-mbar .h-16.w-16{display:block!important;width:48px!important;height:48px!important;flex:none;border-radius:10px}' +
     '.zck-mbar img.h-16{display:block!important;width:48px!important;height:48px!important}' +
-    '.zck-mbar p.font-bold{display:block!important;font-size:14px!important;max-width:120px!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}' +
+    '.zck-mbar p.font-bold{display:-webkit-box!important;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;white-space:normal;font-size:13px!important;line-height:1.25;max-width:none!important;direction:ltr;text-align:right;unicode-bidi:plaintext}' +
     '.zck-mbar .text-xl{font-size:16px!important}' +
-    '.zck-mbar button{padding:12px 18px!important}}' +
+    '.zck-mbar button{padding:11px 14px!important;font-size:14px!important;flex:none}' +
+    '.zck-mbar .flex-col{min-width:0;flex:1}}' +
     '.zck-lbl{display:block;margin:0 4px 6px;font-size:14px;font-weight:400;color:#4b5563;text-align:right;direction:rtl}' +
     'body.zck-typing .checkout_button{position:static!important}' +
     '.zck-paytitle{background:transparent!important;padding:0!important;cursor:default!important;pointer-events:none}' +
