@@ -20,6 +20,7 @@
   var css = document.createElement('style');
   css.textContent =
     '.zck-hide{display:none!important}' +
+    '.zck-lbl{display:block;margin:0 4px 6px;font-size:14px;font-weight:400;color:#4b5563;text-align:right;direction:rtl}' +
     'body.zck-typing .checkout_button{position:static!important}' +
     '.zck-paytitle{background:transparent!important;padding:0!important;cursor:default!important;pointer-events:none}' +
     '.zck-paytitle svg{display:none}.zck-paytitle h3{font-size:18px!important}' +
@@ -164,6 +165,30 @@
       var pk = document.createElement('span'); pk.id = 'zck-pick'; pk.textContent = 'مختارة تلقائياً ✓';
       cod.parentNode.appendChild(pk);
     }
+    // only one way to pay (cash on delivery): hide the whole payment block, like rifq-essentials (owner, 2026-11-21).
+    // If a second payment method is ever added, the block shows again by itself.
+    var pc = document.querySelector('.payments_container');
+    if (pc && pc.parentElement) {
+      var one = pc.children.length === 1 && cod;
+      pc.parentElement.classList.toggle('zck-hide', !!one);
+    }
+
+    // 3b) a label above each field (the placeholder disappears once the customer types)
+    [['full_name', 'اسمك بالكامل', 'shipping-name', 'برجاء كتابة اسمك بالكامل..'], ['phone', 'رقم الموبايل', 'shipping-tel', 'برجاء كتابة رقم موبايلك'],
+      ['government', 'المحافظة', 'shipping-region', ''], ['address', 'العنوان بالتفصيل', 'shipping-address', 'اكتب عنوانك بالتفصيل']]
+      .forEach(function (f) {
+        var el = document.querySelector('[name="' + f[0] + '"]');
+        if (!el) return;
+        if (!el.id) el.id = f[2];
+        if (f[3] && el.getAttribute('placeholder') !== f[3]) el.setAttribute('placeholder', f[3]);
+        var box = el.closest('div.relative') || el.parentElement;
+        if (box.previousElementSibling && box.previousElementSibling.classList.contains('zck-lbl')) return;
+        var lb = document.createElement('label');
+        lb.className = 'zck-lbl';
+        if (el.id) lb.htmlFor = el.id;
+        lb.textContent = f[1];
+        box.parentNode.insertBefore(lb, box);
+      });
 
     // 4) phone
     bindPhone();
