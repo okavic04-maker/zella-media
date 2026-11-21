@@ -294,6 +294,7 @@
         if (!b) return;
         var show = !!a && a.getBoundingClientRect().bottom < window.innerHeight - 170;
         b.classList.toggle('zck-mbar-hide', !show);
+        b.classList.toggle('zck-mbar-show', show); // Header CSS keeps the bar hidden until this class is set (no flash on load)
       };
       window.addEventListener('scroll', check, { passive: true });
       window.addEventListener('resize', check);
