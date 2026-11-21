@@ -11,6 +11,7 @@
    6) First time the customer presses Back on checkout: a small sheet "عندك سؤال قبل ما تطلب؟" with a WhatsApp link
       and "كمّل طلبك". Shown once per visit, no timer, no pressure.
    8) Autofill: id + aria-label on name/phone/governorate/address (autocomplete tokens were already right).
+   9) Every page: the free-shipping line number is rounded up ("250.00" -> "250").
    7) Thanks page: one line asking to keep the phone available for the confirmation call. */
 (function () {
   if (window.__zellaCheckoutClear) return;
@@ -245,8 +246,21 @@
     el.insertAdjacentElement('afterend', d);
   }
 
+  // every page: "أنت على بُعد 250.00 ج.م ..." -> "250" (the theme prints decimals; React keeps the number in its own text node)
+  function roundShip() {
+    [].forEach.call(document.querySelectorAll('span'), function (sp) {
+      if (sp.childElementCount > 2 || !/الشحن المجاني/.test(sp.textContent)) return;
+      [].forEach.call(sp.childNodes, function (tn) {
+        if (tn.nodeType !== 3) return;
+        var v = tn.nodeValue.replace(/(\d[\d,]*)\.\d+/g, function (m, a) { return String(Math.ceil(parseFloat(m.replace(/,/g, '')))); });
+        if (v !== tn.nodeValue) tn.nodeValue = v;
+      });
+    });
+  }
+
   function run() {
     var p = location.pathname;
+    roundShip();
     if (/^\/checkout/.test(p)) checkout();
     else if (/^\/thanks/.test(p)) thanks();
   }
