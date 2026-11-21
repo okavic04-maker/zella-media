@@ -10,6 +10,7 @@
    5) Trust: adds "التوصيل خلال 2–3 أيام عمل" to the two lines checkout-bundles.js shows under "إتمام الطلب".
    6) First time the customer presses Back on checkout: a small sheet "عندك سؤال قبل ما تطلب؟" with a WhatsApp link
       and "كمّل طلبك". Shown once per visit, no timer, no pressure.
+   8) Autofill: id + aria-label on name/phone/governorate/address (autocomplete tokens were already right).
    7) Thanks page: one line asking to keep the phone available for the confirmation call. */
 (function () {
   if (window.__zellaCheckoutClear) return;
@@ -177,6 +178,18 @@
 
     // 6) back button sheet
     trapBack();
+
+    // 8) autofill hints: the theme fields already have the right autocomplete tokens; give them an id and a
+    //    label name too, so phone/browser autofill recognises them more reliably. Nothing visible changes.
+    [['full_name', 'shipping-name', 'الاسم بالكامل'], ['phone', 'shipping-tel', 'رقم الموبايل'],
+      ['government', 'shipping-region', 'المحافظة'], ['address', 'shipping-address', 'العنوان بالتفصيل']]
+      .forEach(function (f) {
+        var el = document.querySelector('[name="' + f[0] + '"]');
+        if (!el || el.dataset.zckAf) return;
+        el.dataset.zckAf = '1';
+        if (!el.id) el.id = f[1];
+        if (!el.getAttribute('aria-label')) el.setAttribute('aria-label', f[2]);
+      });
 
     // 7) keyboard: while a field is focused the sticky order bar (≈124px) covered the field being typed on small
     //    phones (tested 360px wide with ~350px left above the keyboard). Unstick it while typing and keep the field
