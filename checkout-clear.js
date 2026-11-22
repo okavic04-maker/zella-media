@@ -316,6 +316,24 @@
     }, true);
   }
 
+  // smooth navigation (2026-11-22): links our scripts add (home collection circles, brands, offer box, bundles…)
+  // are plain <a> tags, so a click reloaded the whole site. Same-site plain links now go through the site's own
+  // router (no reload). Links React already handles, new-tab clicks and other sites are left alone.
+  document.addEventListener('click', function (e) {
+    if (e.defaultPrevented || e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
+    var a = e.target.closest && e.target.closest('a[href]');
+    if (!a || (a.target && a.target !== '_self') || a.hasAttribute('download')) return;
+    if (Object.keys(a).some(function (k) { return k.indexOf('__react') === 0; })) return; // the theme's own link
+    var u; try { u = new URL(a.getAttribute('href'), location.href); } catch (er) { return; }
+    if (u.origin !== location.origin || /^\/(checkout|thanks)/.test(u.pathname)) return;
+    if (u.pathname === location.pathname && u.search === location.search && u.hash) return; // in-page anchor
+    var rt = window.next && window.next.router;
+    if (!rt || !rt.push) return;
+    e.preventDefault();
+    var to = u.pathname + u.search + u.hash;
+    rt.push(to).then(function () { window.scrollTo(0, 0); }).catch(function () { location.href = to; });
+  }, true);
+
   function run() {
     var p = location.pathname;
     roundShip();
