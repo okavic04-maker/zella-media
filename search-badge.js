@@ -4,7 +4,7 @@
   if (window.__zellaSearchBadge) return;
   window.__zellaSearchBadge = 1;
 
-  var API = 'https://api.easy-orders.net/api/v1/products?join=categories&limit=7&filter=name||cont||';
+  var API = 'https://api.easy-orders.net/api/v1/products?join=categories&fields=id,slug,thumb&limit=40&filter=name||cont||';
   var cache = {};      // query -> Promise<{slug: info}>
   var bySlug = {};     // slug -> {thumb, badge}
 
@@ -13,8 +13,10 @@
     'a.zsb{display:flex!important;align-items:center;gap:10px;direction:ltr;text-align:left;padding-top:9px!important;padding-bottom:9px!important}' +
     '.zsb-pic{position:relative;flex:none;width:62px;height:54px}' +
     '.zsb-pic img{width:48px;height:48px;margin:0 auto;border-radius:10px;object-fit:cover;display:block;background:#f4f4f4}' +
-    '.zsb-b{position:absolute;left:50%;bottom:0;transform:translateX(-50%);font-size:7px;font-weight:700;letter-spacing:.8px;line-height:1;padding:3px 6px;border-radius:999px;display:inline-flex;align-items:center;gap:4px;white-space:nowrap;font-family:inherit}' +
+    '.zsb-b{position:absolute;left:50%;bottom:0;transform:translateX(-50%);font-size:7px;font-weight:700;letter-spacing:.8px;line-height:1;padding:3px 6px;border-radius:999px;display:inline-flex;align-items:center;gap:4px;white-space:nowrap;font-family:inherit;direction:ltr}' +
     '.zsb-b:before{content:"";width:4px;height:4px;border-radius:50%;background:currentColor}' +
+    '.zsbc-b{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);z-index:2;font-size:10px;letter-spacing:1.2px;padding:5px 11px;box-shadow:0 1px 4px rgba(0,0,0,.18)}' +
+    '.zsbc-b:before{width:5px;height:5px}' +
     '.zsb-MEN{background:#111;color:#fff;border:1px solid #111}' +
     '.zsb-WOMEN{background:#fff;color:#b0446b;border:1px solid #e9b6c8}' +
     '.zsb-UNISEX{background:linear-gradient(90deg,#1a1a1a,#8a5a8f);color:#fff;border:1px solid #5a3a5e}' +
@@ -88,8 +90,39 @@
     return true;
   }
 
+  // "عرض جميع النتائج" page (/search?q=…): badge at the bottom of each card image.
+  function cards() {
+    if (location.pathname !== '/search') return;
+    var q = (new URLSearchParams(location.search).get('q') || '').trim();
+    if (!q) return;
+    var as = document.querySelectorAll('main a[href^="/products/"]');
+    var todo = [];
+    for (var i = 0; i < as.length; i++) {
+      var a = as[i], box = a.querySelector('img') && a.querySelector('img').parentElement;
+      if (!box) continue;
+      var slug = slugOf(a), cur = box.querySelector('.zsbc-b');
+      if (cur && cur.dataset.s === slug) continue;
+      if (cur) cur.remove();
+      todo.push([box, slug]);
+    }
+    if (!todo.length) return;
+    load(q).then(function () {
+      todo.forEach(function (x) {
+        var info = bySlug[x[1]];
+        if (!info || !info.badge || !x[0].isConnected || x[0].querySelector('.zsbc-b')) return;
+        if (getComputedStyle(x[0]).position === 'static') x[0].style.position = 'relative';
+        var b = document.createElement('span');
+        b.className = 'zsb-b zsbc-b zsb-' + info.badge;
+        b.dataset.s = x[1];
+        b.textContent = info.badge;
+        x[0].appendChild(b);
+      });
+    });
+  }
+
   var busy = false;
   function run() {
+    cards();
     if (busy) return;
     var ls = links();
     if (!ls.length) return;
@@ -106,4 +139,5 @@
   var t;
   new MutationObserver(function () { clearTimeout(t); t = setTimeout(run, 60); })
     .observe(document.documentElement, { childList: true, subtree: true });
+  run();
 })();
