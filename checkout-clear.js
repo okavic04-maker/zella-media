@@ -334,12 +334,13 @@
     rt.push(to).then(function () { window.scrollTo(0, 0); }).catch(function () { location.href = to; });
   }, true);
 
-  // Keyboard down when the finger scrolls (owner, 2026-11-23; same as the search dropdown): on every page, a drag of
-  // more than 24px while a text field is focused closes the keyboard so the page can be seen. Not when the drag starts
-  // inside that field (moving the cursor / selecting). On /checkout this also brings the sticky order button back
-  // (focusout above removes body.zck-typing), so the customer sees the total and "اطلب" after filling a field.
+  // Keyboard down when the finger scrolls (owner, 2026-11-23; same as the search dropdown): on every page, a vertical
+  // drag of more than 12px while a text field is focused closes the keyboard so the page can be seen. Owner found 24px
+  // + "not when the drag starts on the field" needed too many swipes: checkout fields are full width, so swipes often
+  // start on the focused field. Only a multi-line box (textarea) keeps the drag-inside rule (moving the cursor there).
+  // On /checkout this also brings the sticky order button back (focusout above removes body.zck-typing).
   (function () {
-    var y0 = null, inside = false;
+    var y0 = null, x0 = 0, inside = false;
     function textField(a) {
       return a && (a.tagName === 'TEXTAREA' || a.tagName === 'INPUT' && !/^(checkbox|radio|range|button|submit|file|color)$/i.test(a.type));
     }
@@ -347,11 +348,13 @@
       var a = document.activeElement;
       if (!textField(a) || !e.touches[0]) { y0 = null; return; }
       y0 = e.touches[0].clientY;
-      inside = a.contains(e.target);
+      x0 = e.touches[0].clientX;
+      inside = a.tagName === 'TEXTAREA' && a.contains(e.target);
     }, { passive: true, capture: true });
     document.addEventListener('touchmove', function (e) {
       if (y0 === null || inside || !e.touches[0]) return;
-      if (Math.abs(e.touches[0].clientY - y0) > 24) {
+      var dy = Math.abs(e.touches[0].clientY - y0), dx = Math.abs(e.touches[0].clientX - x0);
+      if (dy > 12 && dy > dx) {   // up/down, not a sideways cursor move
         y0 = null;
         var a = document.activeElement;
         if (textField(a)) a.blur();
