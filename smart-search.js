@@ -322,7 +322,7 @@
     '#zdd{position:fixed;left:10px;right:10px;z-index:9990;background:#fff;border-radius:14px;box-shadow:0 10px 34px rgba(0,0,0,.2);' +
     'overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:4px 12px 0}' +
     '#zdd .zss-t{margin:8px 0 2px}' +
-    '#zdd .zdd-all{display:block;text-align:center;padding:12px 0 14px;border-top:1px solid #f1f1f1;font-size:13px;font-weight:700;color:#0f766e;text-decoration:none}' +
+    '#zdd .zdd-all{display:block;cursor:pointer;text-align:center;padding:12px 0 14px;border-top:1px solid #f1f1f1;font-size:13px;font-weight:700;color:#0f766e;text-decoration:none}' +
     '#zdd .zdd-wait{padding:14px 0;text-align:center;color:#999;font-size:13px}';
 
   var dd = null, ddInput = null, ddTimer, lastQ = '', apiCache = {};
@@ -342,7 +342,8 @@
     } else {
       var q = allQuery(raw, list);
       dd.innerHTML = '<div id="zss" style="padding:0;border-radius:0">' + panelHTML(raw, list) + '</div>' +
-        '<a class="zdd-all" href="/search?q=' + encodeURIComponent(q) + '">عرض جميع النتائج</a>';
+        // data-go, not href="/search…": search-badge.js decorates product links that sit next to a /search link
+        '<a class="zdd-all" role="link" data-go="/search?q=' + encodeURIComponent(q) + '">عرض جميع النتائج</a>';
     }
     place();
   }
@@ -384,7 +385,7 @@
     if (e.key === 'Escape') closeDD();
     if (e.key === 'Enter' && dd) {   // keyboard "search" = عرض جميع النتائج
       var all = dd.querySelector('.zdd-all');
-      if (all) { e.preventDefault(); e.stopPropagation(); go(all.getAttribute('href')); }
+      if (all) { e.preventDefault(); e.stopPropagation(); go(all.dataset.go); }
     }
   }, true);
   function go(url) {
@@ -400,7 +401,7 @@
     if (a) {   // a result or "عرض جميع النتائج": open it and close the list
       e.preventDefault(); e.stopPropagation();
       if (a.classList.contains('zss-r')) clarity('search_pick');
-      go(a.getAttribute('href'));
+      go(a.dataset.go || a.getAttribute('href'));
       return;
     }
     if (t.closest('#zdd') || headerInput(t)) return;
