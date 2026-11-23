@@ -334,6 +334,31 @@
     rt.push(to).then(function () { window.scrollTo(0, 0); }).catch(function () { location.href = to; });
   }, true);
 
+  // Keyboard down when the finger scrolls (owner, 2026-11-23; same as the search dropdown): on every page, a drag of
+  // more than 24px while a text field is focused closes the keyboard so the page can be seen. Not when the drag starts
+  // inside that field (moving the cursor / selecting). On /checkout this also brings the sticky order button back
+  // (focusout above removes body.zck-typing), so the customer sees the total and "اطلب" after filling a field.
+  (function () {
+    var y0 = null, inside = false;
+    function textField(a) {
+      return a && (a.tagName === 'TEXTAREA' || a.tagName === 'INPUT' && !/^(checkbox|radio|range|button|submit|file|color)$/i.test(a.type));
+    }
+    document.addEventListener('touchstart', function (e) {
+      var a = document.activeElement;
+      if (!textField(a) || !e.touches[0]) { y0 = null; return; }
+      y0 = e.touches[0].clientY;
+      inside = a.contains(e.target);
+    }, { passive: true, capture: true });
+    document.addEventListener('touchmove', function (e) {
+      if (y0 === null || inside || !e.touches[0]) return;
+      if (Math.abs(e.touches[0].clientY - y0) > 24) {
+        y0 = null;
+        var a = document.activeElement;
+        if (textField(a)) a.blur();
+      }
+    }, { passive: true, capture: true });
+  })();
+
   function run() {
     var p = location.pathname;
     roundShip();
