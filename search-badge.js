@@ -90,23 +90,41 @@
     return true;
   }
 
-  // "عرض جميع النتائج" page (/search?q=…): badge at the bottom of each card image.
+  // Product cards on every page (home, collections, /search…): badge at the bottom of each card image.
+  // Not on product pages (owner: don't touch "منتجات مشابهة").
+  var slugReq = {};
+  function loadSlugs(slugs) {
+    var need = slugs.filter(function (s) { return !(s in bySlug) && !slugReq[s]; });
+    var jobs = [];
+    for (var i = 0; i < need.length; i += 30) {
+      var part = need.slice(i, i + 30);
+      part.forEach(function (s) { slugReq[s] = 1; });
+      jobs.push(fetch('https://api.easy-orders.net/api/v1/products?join=categories&fields=id,slug,thumb&limit=30&filter=slug||$in||' +
+        part.map(encodeURIComponent).join(',')).then(function (r) { return r.json(); }).then(function (j) {
+        (Array.isArray(j) ? j : (j && j.data) || []).forEach(function (p) {
+          bySlug[String(p.slug).toLowerCase()] = { thumb: p.thumb || '', badge: badgeOf((p.categories || []).map(function (c) { return c.name || ''; })) };
+        });
+      }).catch(function () {}));
+    }
+    return Promise.all(jobs);
+  }
+
   function cards() {
-    if (location.pathname !== '/search') return;
-    var q = (new URLSearchParams(location.search).get('q') || '').trim();
-    if (!q) return;
+    if (location.pathname.indexOf('/products/') === 0 || /^\/(checkout|thanks)/.test(location.pathname)) return;
     var as = document.querySelectorAll('main a[href^="/products/"]');
     var todo = [];
     for (var i = 0; i < as.length; i++) {
       var a = as[i], box = a.querySelector('img') && a.querySelector('img').parentElement;
-      if (!box) continue;
+      if (!box || a.closest('#zop') || a.closest('#zss')) continue;   // offer box has its own design
       var slug = slugOf(a), cur = box.querySelector('.zsbc-b');
       if (cur && cur.dataset.s === slug) continue;
       if (cur) cur.remove();
-      todo.push([box, slug]);
+      todo.push([box, slug, decodeURIComponent((a.getAttribute('href').split('/products/')[1] || '').split(/[?#]/)[0])]);
     }
     if (!todo.length) return;
-    load(q).then(function () {
+    // slugs are lower-cased by slugOf; the API filter is case-sensitive, so send the original href slug
+    var orig = todo.map(function (x) { return x[2]; });
+    loadSlugs(orig).then(function () {
       todo.forEach(function (x) {
         var info = bySlug[x[1]];
         if (!info || !info.badge || !x[0].isConnected || x[0].querySelector('.zsbc-b')) return;
