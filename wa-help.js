@@ -26,15 +26,23 @@
     return [].slice.call(document.querySelectorAll('button')).filter(function (b) { return re.test(b.innerText) && b.offsetParent; })[0];
   }
 
-  function productPage() {
-    if (document.getElementById('zwa-p')) return;
-    var b = btnWith(/اطلب دلوقتي|إتمام الطلب|أضف للسلة|اضغط هنا للشراء/);
+  // The theme keeps this link when the customer moves to another product without a reload (2026-11-25: the message
+  // still named the previous perfume), so the text is rebuilt from the current page on every check and on tap.
+  function productText() {
     var h1 = document.querySelector('h1.product_name');
-    if (!b || !h1) return;
+    return h1 && ('السلام عليكم، عندي سؤال عن: ' + h1.innerText.trim() + '\n' + location.origin + location.pathname);
+  }
+  function productPage() {
+    var ex = document.getElementById('zwa-p');
+    if (ex) { var t = productText(); if (t && ex.dataset.t !== t) { ex.href = wa(t); ex.dataset.t = t; } return; }
+    var b = btnWith(/اطلب دلوقتي|إتمام الطلب|أضف للسلة|اضغط هنا للشراء/);
+    var text = productText();
+    if (!b || !text) return;
     var at = b.parentElement.querySelectorAll('button').length > 1 ? b.parentElement : b;
-    at.insertAdjacentElement('afterend', link('zwa-p',
-      'السلام عليكم، عندي سؤال عن: ' + h1.innerText.trim() + '\n' + location.origin + location.pathname,
-      'عندك سؤال عن البرفيوم أو العرض؟ <b>واتساب</b>', ''));
+    var a = link('zwa-p', text, 'عندك سؤال عن البرفيوم أو العرض؟ <b>واتساب</b>', '');
+    a.dataset.t = text;
+    a.addEventListener('click', function () { var t = productText(); if (t) a.href = wa(t); }, true);
+    at.insertAdjacentElement('afterend', a);
   }
 
   // remember name + phone while the customer types them, for the thank-you page message (owner, 2026-11-23:
