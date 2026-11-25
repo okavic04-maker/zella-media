@@ -1,7 +1,7 @@
-/* Zella product page bundle (built 2026-11-26): eta.js (rows «C») + notes-frame.js + pdp-layout.js. Sources in code/. */
+/* Zella product page bundle (built 2026-11-26): eta.js (line, notes, rows) + notes-frame.js + pdp-layout.js. Sources in code/. */
 /* Zella: delivery + store info on the product page (owner 2026-11-26, athrscents-style «C»).
-   In stock: a block placed after «إصدارات تانية» (flex order 3 in .p_details_container, see pdp-layout.js), before the
-     notes frame #znf (order 4, notes-frame.js, always shown open):
+   In stock (owner 2026-11-26 order): line #zetl (flex order 3, after «إصدارات تانية») -> notes frame #znf (order 4,
+     notes-frame.js, always open) -> rows #zeta (order 5) -> the rest of the page (order 6), see pdp-layout.js:
      line «التوصيل المتوقع: <next delivery day> – <3 delivery days after today + month>» (Cairo date; the courier delivers
      every day except Friday, owner; official holidays not counted);
      rows that open in place (<details>, nothing leaves the page): الشحن والتوصيل / الدفع عند الاستلام /
@@ -28,9 +28,9 @@
   var BELL = ic('<path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15zM10 20a2 2 0 0 0 4 0"/>', 22);
   function waIcon(w) { return '<svg viewBox="0 0 24 24" width="' + w + '" height="' + w + '" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm4.5 12.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.2 2.2 2.2 0 0 0 .1-1.3c0-.1-.2-.2-.4-.3z"/></svg>'; }
   var css =
-    '#zeta{margin:16px 0 4px;direction:rtl;color:#0f172a}' +
-    '#zeta .zm-eta{display:flex;align-items:center;gap:8px;padding:2px 2px 2px;font-size:14.5px;color:#475569;font-weight:600}#zeta .zm-eta svg{color:#0f172a}#zeta .zm-eta b{color:#0f172a;font-weight:800}' +
-    '#zeta details{border:1px solid #e5e7eb;border-radius:14px;background:#fff;margin-top:10px;overflow:hidden}' +
+    '#zeta{margin:16px 0 4px;direction:rtl;color:#0f172a}#zeta.zeta-out{margin-top:12px}' +
+    '#zetl{display:flex;align-items:center;gap:8px;margin:16px 0 0;padding:2px;direction:rtl;font-size:14.5px;color:#475569;font-weight:600}#zetl svg{color:#0f172a}#zetl b{color:#0f172a;font-weight:800}' +
+    '#zeta details{border:1px solid #e5e7eb;border-radius:14px;background:#fff;margin-top:10px;overflow:hidden}#zeta details:first-child{margin-top:0}' +
     '#zeta summary{list-style:none;display:flex;align-items:center;gap:10px;padding:15px 16px;font-size:15px;font-weight:800;color:#0f172a;cursor:pointer}#zeta summary::-webkit-details-marker{display:none}' +
     '#zeta summary>svg:first-child{color:#0d9488}#zeta summary span{flex:1}#zeta summary>svg:last-child{color:#0f172a;transition:transform .25s}#zeta details[open] summary>svg:last-child{transform:rotate(180deg)}' +
     '#zeta .zm-b{padding:0 14px 14px;animation:zmo .25s ease-out}@keyframes zmo{from{opacity:0;transform:translateY(-4px)}}' +
@@ -61,13 +61,13 @@
       '<div class="zm-oc"><b>اشترِ قطعتين، والثالثة هدية</b><small>على برفانات الرجالي والحريمي</small></div>';
   }
   function inHTML(name, date, bogo) {
-    return '<div class="zm-eta">' + ic(TRUCK, 20) + '<span>التوصيل المتوقع: <b>' + date + '</b></span></div>' +
-      row(0, TRUCK, 'الشحن والتوصيل', one('التوصيل خلال <b>3 أيام عمل</b> كحد أقصى، مع تواصل المندوب قبل الوصول.')) +
+    return row(0, TRUCK, 'الشحن والتوصيل', one('التوصيل خلال <b>3 أيام عمل</b> كحد أقصى، مع تواصل المندوب قبل الوصول.')) +
       row(1, CASH, 'الدفع عند الاستلام', one('<b>الدفع نقداً عند الاستلام</b>، مع إمكانية معاينة المنتج قبل الدفع.')) +
       row(2, SWAP, 'الاستبدال والاسترجاع', one('متاح خلال <b>48 ساعة</b> من الاستلام في حال وجود أي مشكلة بالمنتج.')) +
       (bogo ? row(3, GIFT, 'العرض الحالي', offer()) : '') +
       '<a class="zm-ask" href="' + askLink(name) + '" target="_blank" rel="noopener">' + ic(Q, 18) + '<span>لديك استفسار؟</span><b>' + waIcon(15) + 'تواصل معنا عبر واتساب</b></a>';
   }
+  function lineHTML(date) { return ic(TRUCK, 20) + '<span>التوصيل المتوقع: <b>' + date + '</b></span>'; }
   function outHTML(name) {
     return '<a class="ze-o" href="' + waLink('أهلاً Zella Store، البرفيوم ده خلص: ' + name + '\n' + here() + '\nبلّغوني لما يرجع لو سمحتوا') + '" target="_blank" rel="noopener">' +
       '<span class="ze-i">' + BELL + '</span><span><small>خلص دلوقتي</small><b>بلّغني لما يرجع 💬</b></span></a>';
@@ -89,11 +89,11 @@
   function addCss() { if (!document.getElementById('zbe-css')) { var s = document.createElement('style'); s.id = 'zbe-css'; s.textContent = css; document.head.appendChild(s); } }
   function btns(re) { return [].filter.call(document.querySelectorAll('button'), function (b) { return re.test(b.textContent) && b.offsetParent; }); }
   function run() {
-    var oe = document.getElementById('zeta');
-    if (!isProduct()) { if (oe) oe.remove(); return; }
+    var oe = document.getElementById('zeta'), ln = document.getElementById('zetl');
+    if (!isProduct()) { if (oe) oe.remove(); if (ln) ln.remove(); return; }
     var h1 = document.querySelector('h1.product_name'), name = h1 ? h1.innerText.trim() : '';
     var buy = btns(/اضغط هنا للشراء/)[0], out = btns(/نفذ المخزون/)[0];
-    var anchor = buy || out; if (!anchor || !anchor.parentElement || !name) { if (oe) oe.remove(); return; }
+    var anchor = buy || out; if (!anchor || !anchor.parentElement || !name) { if (oe) oe.remove(); if (ln) ln.remove(); return; }
     var slug = decodeURIComponent(location.pathname.split('/')[2] || '');
     var state = (out && !buy) ? 'out' : 'in', date = range(), bogo = state === 'in' && bogoOf(slug) === true;
     var key = location.pathname + '|' + state + '|' + name + '|' + date + '|' + bogo;
@@ -111,9 +111,15 @@
       }
     }
     var box = anchor.parentElement, det = document.querySelector('.p_details_container');
-    if (state === 'in' && det) {   // after «إصدارات تانية»: a direct child of the details column, flex order 3 (pdp-layout.js)
+    if (state === 'in' && det) {   // direct children of the details column: line #zetl order 3, notes #znf 4, rows #zeta 5 (pdp-layout.js)
+      if (!ln) { ln = document.createElement('div'); ln.id = 'zetl'; }
+      var lh = lineHTML(date); if (ln.innerHTML !== lh) ln.innerHTML = lh;
+      if (ln.parentElement !== det) det.appendChild(ln);
       if (oe.parentElement !== det) det.appendChild(oe);
-    } else if (oe.previousElementSibling !== box) box.insertAdjacentElement('afterend', oe);   // sold out: right under the buttons, above #zalt
+    } else {
+      if (ln) ln.remove();
+      if (oe.previousElementSibling !== box) box.insertAdjacentElement('afterend', oe);   // sold out: right under the buttons, above #zalt
+    }
   }
   setInterval(run, 400); run();
 })();
@@ -177,8 +183,8 @@
 ;
 /* Zella: calmer product page (owner, 2026-11-25). CSS only, no moves of theme nodes (the theme's React keeps them).
    On /products/*, order of the details column:
-     1 product info (name, price, buy buttons) -> 2 bogo.js's #zella-related «إصدارات تانية» -> 3 eta.js's delivery
-     card #zeta -> 4 notes-frame.js's #znf «مكونات البرفيوم» (or the theme description) -> 5 the rest.
+     1 product info (name, price, buy buttons) -> 2 bogo.js's #zella-related «إصدارات تانية» -> 3 eta.js's line #zetl
+     «التوصيل المتوقع» -> 4 notes-frame.js's #znf «مكونات البرفيوم» (or the theme description) -> 5 eta.js's rows #zeta -> 6 the rest.
    - the theme's free-shipping box under the buttons (progress + its small slider) is hidden; #zella-related inside it stays;
    - the theme's policy rows (shipping, exchange, COD) are hidden: their facts are in the delivery card's sheets;
    - wa-help.js's WhatsApp line #zwa-p is hidden here: the delivery card has «اسألنا واتساب»;
@@ -193,11 +199,13 @@
     BOX + '{display:contents}' +
     BOX + '>:not(#zella-related){display:none!important}' +
     D + ' #zella-related{order:2;margin-top:14px;border:1px solid #e2e8f0;border-radius:14px;padding:12px 8px;background:#fff}' +
-    D + '>#zeta{order:3}' +
+    D + '>#zetl{order:3}' +
+    D + '>#zeta{order:5}' +
+    D + '>#zeta.zeta-out{order:1}' +
     DS + '{display:contents}' +
     D + ' .product_description{order:4}' +
     'html.zpdp #znf{order:4}' +
-    DS + '>:not(.product_description):not(#znf){order:5;margin-top:18px}' +
+    DS + '>:not(.product_description):not(#znf){order:6;margin-top:18px}' +
     DS + '>div:has(button[id^="headlessui-disclosure"]){display:none!important}' +
     'html.zpdp #zwa-p{display:none!important}' +
     '';   // the first-screen rules (one-picture gallery, smaller gap) are in the Header layout <style> (layout-fix.css) so they apply before the first paint
