@@ -137,7 +137,7 @@
   var css =
     'html.zpdp .product_description.zn-old{display:none!important}' +
     '#znf{margin-top:16px;border:1px solid #e2e8f0;border-radius:18px;background:#fff;direction:rtl;overflow:hidden}' +
-    '#znf .zn-h{padding:14px 14px 10px;background:linear-gradient(180deg,#f0fdfa,#fff)}#znf .zn-h b{display:block;font-size:17px;font-weight:800;color:#0f172a}' +
+    '#znf .zn-h{text-align:center;padding:14px 14px 10px;background:linear-gradient(180deg,#f0fdfa,#fff)}#znf .zn-h b{display:block;font-size:17px;font-weight:800;color:#0f172a}' +
     '#znf .zn-b{position:relative;height:300px;border-top:1px solid #f1f5f9}' +
     '#znf .zn-rows{height:100%;display:flex;flex-direction:column;justify-content:space-around;padding:6px 0}' +
     '#znf .zn-r{display:flex;align-items:center;gap:6px;min-height:0}' +
@@ -175,7 +175,7 @@
     var body = build(desc); if (!body) return;   // keep the theme's description as it is
     if (!document.getElementById('znf-css')) { var s = document.createElement('style'); s.id = 'znf-css'; s.textContent = css; document.head.appendChild(s); }
     f = document.createElement('div'); f.id = 'znf'; f.dataset.k = key;
-    f.innerHTML = '<div class="zn-h"><b>مكونات البرفيوم</b></div><div class="zn-b">' + body + '</div>';
+    f.innerHTML = '<div class="zn-h"><b>مكونات العطر</b></div><div class="zn-b">' + body + '</div>';
     desc.classList.add('zn-old'); desc.insertAdjacentElement('beforebegin', f);
   }
   setInterval(run, 500); run();
