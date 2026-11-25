@@ -35,10 +35,13 @@
     '#zeta summary>svg:first-child{color:#0d9488}#zeta summary span{flex:1}#zeta summary>svg:last-child{color:#0f172a;transition:transform .25s}#zeta details[open] summary>svg:last-child{transform:rotate(180deg)}' +
     '#zeta .zm-b{padding:0 14px 14px;animation:zmo .25s ease-out}@keyframes zmo{from{opacity:0;transform:translateY(-4px)}}' +
     '#zeta .zm-p{margin:0;padding:0 4px;font-size:14.5px;line-height:1.7;color:#475569}#zeta .zm-p b{color:#0f172a;font-weight:800}' +
-    '#zeta .zm-of{display:flex;align-items:center;justify-content:center;gap:10px;padding:6px 0 4px}#zeta .zm-of em{font-style:normal;font-size:20px;font-weight:800;color:#cbd5e1}' +
-    '#zeta .zm-of span{display:flex;flex-direction:column;align-items:center;gap:4px;width:68px;padding:10px 0 8px;border-radius:14px;background:#f0fdfa;color:#0d9488;border:1px solid #ccfbf1}#zeta .zm-of i{font-style:normal;font-size:12px;font-weight:700;color:#475569}' +
-    '#zeta .zm-of .zo-g{background:#fff7ed;color:#f97316;border-color:#fed7aa}#zeta .zm-of .zo-g i{color:#c2410c;font-weight:800}' +
-    '#zeta .zm-oc{text-align:center;margin-top:8px}#zeta .zm-oc b{display:block;font-size:15.5px;font-weight:800;color:#0f172a}#zeta .zm-oc small{display:block;font-size:12.5px;color:#64748b;font-weight:600;margin-top:2px}' +
+    '#zeta details.zof{border-color:#fed7aa;background:#fff7ed}#zeta details.zof summary>svg:first-child{color:#f97316}#zeta details.zof summary span{color:#9a3412}#zeta details.zof summary>svg:last-child{color:#c2410c}#zeta details.zof .zm-b{background:#fff;border-top:1px solid #fed7aa;padding:14px 10px 12px}' +
+    '#zeta .zy{display:flex;align-items:flex-start;justify-content:space-between;padding:2px 0}#zeta .zy>div{flex:0 0 72px;display:flex;flex-direction:column;align-items:center;text-align:center}' +
+    '#zeta .zy>i{flex:1;margin-top:24px;height:2px;background:#99f6e4;display:flex;align-items:center;justify-content:center}#zeta .zy>i.o{background:none;border-top:2px dashed #fdba74;height:0}' +
+    '#zeta .zy>i u{text-decoration:none;margin-top:-1px;padding:2px 9px;border-radius:999px;background:#fff;border:1.5px solid #fdba74;color:#c2410c;font-size:12px;font-weight:800;font-style:normal;line-height:1.3}' +
+    '#zeta .zy span{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#fff;color:#0d9488;border:1.5px solid #99f6e4}#zeta .zy .h span{background:#f0fdfa}#zeta .zy .g span{background:#f97316;color:#fff;border-color:#f97316;box-shadow:0 4px 12px rgba(249,115,22,.25)}' +
+    '#zeta .zy b{margin-top:8px;font-size:13px;font-weight:700;color:#334155}#zeta .zy small{font-size:14px;font-weight:800;color:#0f172a;margin-top:1px}#zeta .zy .h small{color:#0d9488}#zeta .zy .g small{color:#c2410c}' +
+    '#zeta .zy em{font-style:normal;font-size:11.5px;font-weight:600;color:#94a3b8;margin-top:1px;white-space:nowrap}' +
     '#zeta .zm-ask{display:flex;align-items:center;gap:8px;margin-top:12px;padding:4px;text-decoration:none;font-size:14px;color:#475569;font-weight:600}#zeta .zm-ask>svg{color:#0d9488}#zeta .zm-ask span{flex:1}' +
     '#zeta .zm-ask b{display:inline-flex;align-items:center;gap:5px;color:#15803d;font-weight:800}#zeta .zm-ask b svg{color:#22c55e}' +
     '#zeta.zeta-out{border:1px solid #fed7aa;border-radius:16px;background:#fff7ed;overflow:hidden;margin-top:12px}#zeta .ze-o{display:flex;align-items:center;gap:12px;padding:12px 14px;text-decoration:none;color:inherit}' +
@@ -56,15 +59,16 @@
   function askLink(name) { return waLink('أهلاً Zella Store، عندي سؤال عن ' + name + '\n' + here()); }
   function one(t) { return '<p class="zm-p">' + t + '</p>'; }
   function row(k, icon, title, body) { return '<details data-k="' + k + '"><summary>' + ic(icon, 20) + '<span>' + title + '</span>' + DOWN + '</summary><div class="zm-b">' + body + '</div></details>'; }
-  function offer() {
-    return '<div class="zm-of"><span>' + ic(DROP, 26) + '<i>برفيوم</i></span><em>+</em><span>' + ic(DROP, 26) + '<i>برفيوم</i></span><em>+</em><span class="zo-g">' + ic(GIFT, 26) + '<i>هدية</i></span></div>' +
-      '<div class="zm-oc"><b>اشترِ قطعتين، والثالثة هدية</b><small>على برفانات الرجالي والحريمي</small></div>';
+  function offer() {   // one line, two offers (owner 2026-11-26): 1st at its price -> 2nd 50% (buying 2) «أو» 3rd free (buying 3)
+    return '<div class="zy"><div><span>' + ic(DROP, 22) + '</span><b>الأولى</b><small>بسعرها</small></div><i></i>' +
+      '<div class="h"><span>' + ic(DROP, 22) + '</span><b>التانية</b><small>خصم 50%</small><em>عند شراء قطعتين</em></div><i class="o"><u>أو</u></i>' +
+      '<div class="g"><span>' + ic(GIFT, 22) + '</span><b>التالتة</b><small>مجاناً</small><em>عند شراء 3 قطع</em></div></div>';
   }
   function inHTML(name, date, bogo) {
     return row(0, TRUCK, 'الشحن والتوصيل', one('التوصيل خلال <b>3 أيام عمل</b> كحد أقصى، مع تواصل المندوب قبل الوصول.')) +
       row(1, CASH, 'الدفع عند الاستلام', one('<b>الدفع نقداً عند الاستلام</b>، مع إمكانية معاينة المنتج قبل الدفع.')) +
-      row(2, SWAP, 'الاستبدال والاسترجاع', one('متاح خلال <b>48 ساعة</b> من الاستلام في حال وجود أي مشكلة بالمنتج.')) +
-      (bogo ? row(3, GIFT, 'العرض الحالي', offer()) : '') +
+      row(2, SWAP, 'الاستبدال والاسترجاع', one('الاستبدال أو الاسترجاع متاح خلال <b>48 ساعة</b> من الاستلام في حال وجود أي مشكلة بالمنتج، مع إمكانية معاينة الطلب قبل الدفع.')) +
+      (bogo ? row(3, GIFT, 'العرض الحالي 🎁', offer()).replace('<details ', '<details class="zof" ') : '') +
       '<a class="zm-ask" href="' + askLink(name) + '" target="_blank" rel="noopener">' + ic(Q, 18) + '<span>لديك استفسار؟</span><b>' + waIcon(15) + 'تواصل معنا عبر واتساب</b></a>';
   }
   function lineHTML(date) { return ic(TRUCK, 20) + '<span>التوصيل المتوقع: <b>' + date + '</b></span>'; }
