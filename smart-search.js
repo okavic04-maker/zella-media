@@ -151,6 +151,7 @@
     s = s.normalize ? s.normalize('NFD').replace(/[̀-ͯ]/g, '') : s;
     s = s.replace(/['’`]/g, '').replace(/&/g, ' ').replace(/[^a-z0-9؀-ۿ]+/g, ' ');
     s = s.replace(/\bone\s+million\b|\b1\s+million\b/g, '1million');
+    s = s.replace(/(^|\s)([ld])\s+([a-z]{3,})/g, '$1$2$3');   // French l'/d' typed with a space: "l homme" -> "lhomme" (like L'Homme)
     s = s.replace(/\b(\d{1,2})\s+(pm|am)\b/g, '$1$2').replace(/\bpm\s*(\d{1,2})\b/g, '$1pm');   // "9 pm", "pm9" -> "9pm"
     s = s.split(' ').map(function (w) { return LAT[w] || w; }).join(' ');
     return s.trim();
