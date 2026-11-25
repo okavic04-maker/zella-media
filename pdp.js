@@ -1,4 +1,4 @@
-/* Zella product page bundle (built 2026-11-25): eta.js + notes-frame.js + pdp-layout.js. «يناسب» (scent-line.js) removed by the owner; sources in code/. */
+/* Zella product page bundle (built 2026-11-26): eta.js (style «B») + notes-frame.js (no «تكبير») + pdp-layout.js. Sources in code/. */
 /* Zella: delivery card on the product page (owner 2026-11-25, style «B»).
    In stock: one small card placed after «إصدارات تانية» (flex order 3 in .p_details_container, see pdp-layout.js):
      «اطلب النهارده يوصلك» + <next delivery day> – <3 delivery days after today + month> (Cairo date; the courier
@@ -109,12 +109,11 @@
    in place of the theme's description (flex order 4 in .p_details_container, see pdp-layout.js):
    - description with the HTML pyramid (≈220 products: titles الإفتتاحية / قلب العطر / المكونات الأساسية + small note
      pictures) is redrawn as 3 rows «البداية / القلب / القاعدة» of round notes that scroll sideways;
-   - description with one notes picture (≈250 products) shows it inside the same frame (contain) + «تكبير» (full screen);
+   - description with one notes picture (≈250 products) shows it inside the same frame (contain) (no zoom, owner);
    - anything else (bundles, text) keeps the theme's description untouched.
    The theme node is only hidden (class zn-old), never moved; the frame is rebuilt when the description changes (SPA). */
 (function () {
   if (window.__zellaNotes) return; window.__zellaNotes = 1;
-  var ZOOM = '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>';
   var TIER = { 'الإفتتاحية': ['البداية', 'أول ما تحطه'], 'الافتتاحية': ['البداية', 'أول ما تحطه'], 'قلب العطر': ['القلب', 'بعد شوية'], 'المكونات الأساسية': ['القاعدة', 'اللي بيفضل'], 'القاعدة': ['القاعدة', 'اللي بيفضل'] };
   var css =
     'html.zpdp .product_description.zn-old{display:none!important}' +
@@ -127,11 +126,9 @@
     '#znf .zn-s{flex:1;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:2px 2px 2px 12px;-webkit-mask-image:linear-gradient(270deg,#000 85%,transparent);mask-image:linear-gradient(270deg,#000 85%,transparent)}#znf .zn-s::-webkit-scrollbar{display:none}' +
     '#znf .zn-n{flex:0 0 64px;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11.5px;font-weight:700;color:#334155;text-align:center;line-height:1.2}' +
     '#znf .zn-n img{width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid #fff;box-shadow:0 0 0 1px #e2e8f0,0 2px 6px rgba(15,23,42,.08);background:#f8fafc}' +
-    '#znf .zn-pic{height:100%;display:flex;align-items:center;justify-content:center;padding:10px;background:#fcfcfd;cursor:zoom-in}' +
+    '#znf .zn-pic{height:100%;display:flex;align-items:center;justify-content:center;padding:10px;background:#fcfcfd}' +
     '#znf .zn-pic img{max-width:100%;max-height:100%;object-fit:contain;border-radius:10px}' +
-    '#znf .zn-z{position:absolute;left:10px;bottom:10px;display:flex;align-items:center;gap:5px;padding:5px 10px;border-radius:999px;background:rgba(15,23,42,.72);color:#fff;font:inherit;font-size:12px;font-weight:700;border:0;cursor:pointer}' +
-    '#zn-ov{position:fixed;inset:0;z-index:100000;background:rgba(15,23,42,.92);display:flex;align-items:center;justify-content:center;padding:16px}#zn-ov img{max-width:100%;max-height:100%;border-radius:12px;background:#fff}' +
-    '#zn-ov button{position:absolute;top:14px;left:14px;width:40px;height:40px;border-radius:50%;border:0;background:#fff;font-size:22px;font-weight:800;cursor:pointer}';
+    '';
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function build(desc) {
     var tiers = [], ti = -1;
@@ -145,17 +142,12 @@
         x.n.map(function (n) { return '<span class="zn-n"><img src="' + esc(n[0]) + '" alt="" loading="lazy">' + esc(n[1].replace(/^ال(?=\S{3})/, '')) + '</span>'; }).join('') + '</div></div>';
     }).join('') + '</div>';
     var imgs = desc.querySelectorAll('img'), txt = desc.textContent.replace(/\s+/g, '');
-    if (imgs.length === 1 && txt.length < 40) return '<div class="zn-pic"><img src="' + esc(imgs[0].getAttribute('src')) + '" alt="مكونات البرفيوم"></div><button type="button" class="zn-z">' + ZOOM + 'تكبير</button>';
+    if (imgs.length === 1 && txt.length < 40) return '<div class="zn-pic"><img src="' + esc(imgs[0].getAttribute('src')) + '" alt="مكونات البرفيوم"></div>';
     return '';
-  }
-  function zoom(src) {
-    var ov = document.createElement('div'); ov.id = 'zn-ov';
-    ov.innerHTML = '<img src="' + esc(src) + '" alt=""><button type="button" aria-label="إغلاق">×</button>';
-    ov.addEventListener('click', function () { ov.remove(); }); document.body.appendChild(ov);
   }
   function run() {
     var f = document.getElementById('znf');
-    if (!/^\/products\/[^\/]+/.test(location.pathname)) { if (f) f.remove(); var o = document.getElementById('zn-ov'); if (o) o.remove(); return; }
+    if (!/^\/products\/[^\/]+/.test(location.pathname)) { if (f) f.remove(); return; }
     var desc = document.querySelector('.p_details_container .product_description'); if (!desc) { if (f) f.remove(); return; }
     var key = location.pathname + '|' + desc.innerHTML.length;
     if (f && f.dataset.k === key && document.body.contains(f)) return;
@@ -165,12 +157,10 @@
     if (!document.getElementById('znf-css')) { var s = document.createElement('style'); s.id = 'znf-css'; s.textContent = css; document.head.appendChild(s); }
     f = document.createElement('div'); f.id = 'znf'; f.dataset.k = key;
     f.innerHTML = '<div class="zn-h"><b>مكونات البرفيوم</b></div><div class="zn-b">' + body + '</div>';
-    f.addEventListener('click', function (e) { if (e.target.closest('.zn-pic,.zn-z')) { var im = f.querySelector('.zn-pic img'); if (im) zoom(im.src); } });
     desc.classList.add('zn-old'); desc.insertAdjacentElement('beforebegin', f);
   }
   setInterval(run, 500); run();
 })();
-
 ;
 /* Zella: calmer product page (owner, 2026-11-25). CSS only, no moves of theme nodes (the theme's React keeps them).
    On /products/*, order of the details column:
