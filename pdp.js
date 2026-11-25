@@ -57,6 +57,7 @@
     var s = slug(), old = document.getElementById('zsl');
     if (!s) { if (old) { stop(); old.remove(); } return; }
     if (old && old.dataset.s === s && document.body.contains(old)) return;
+    if (old && old.dataset.s !== s) { stop(); old.remove(); }   // SPA move to another product (React keeps the node): never show the last perfume's line
     if (!priceBox()) return;
     var p = idOf(s); if (!p) return;
     Promise.all([p, voices()]).then(function (r) {
