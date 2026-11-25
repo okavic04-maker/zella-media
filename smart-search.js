@@ -96,7 +96,10 @@
     'سيكريت': 'secret', 'سيكرت': 'secret', 'يارا': 'yara', 'ماي واي': 'my way', 'ميس ديور': 'miss dior', 'بربري': 'burberry', 'بيربري': 'burberry',
     'ديلان': 'dylan', 'الور': 'allure', 'ألور': 'allure', 'سبورت': 'sport', 'لايت بلو': 'light blue', 'دولتشي': 'dolce', 'جابانا': 'gabbana',
     'ذا ون': 'the one', 'دانهيل': 'dunhill', 'ديزاير': 'desire', 'مونتال': 'montale', 'نارسيسو': 'narciso', 'كايالي': 'kayali', 'فانتازيا': 'fantasy',
-    'بلاك اوبيوم': 'black opium', 'اوبيوم': 'opium', 'سي': 'si', 'ايدول': 'idole', 'لانكوم': 'lancome', 'فيرساتشي ديلان': 'versace dylan', 'شيروتي': 'cerruti'
+    'بلاك اوبيوم': 'black opium', 'اوبيوم': 'opium', 'سي': 'si', 'ايدول': 'idole', 'لانكوم': 'lancome', 'فيرساتشي ديلان': 'versace dylan', 'شيروتي': 'cerruti',
+    // from empty searches (Clarity, 2026-11-25)
+    'اروجيت': 'arrogate', 'أروجيت': 'arrogate', 'عساف': 'assaf', 'اماراتي': 'emirates', 'امارتي': 'emirates', 'اماراتيه': 'emirates',
+    'امارات': 'emirates', 'دخون': 'dkhoon', 'افنان': 'afnan', 'انسينس': 'incense'
   };
   var AR_KEYS = Object.keys(AR).sort(function (a, b) { return b.length - a.length; });
 
@@ -105,7 +108,8 @@
     sawaj: 'sauvage', sawag: 'sauvage', sowag: 'sauvage', sovag: 'sauvage', sovage: 'sauvage', sofag: 'sauvage', sofage: 'sauvage', sauvaj: 'sauvage', suvaj: 'sauvage',
     shanel: 'chanel', shanil: 'chanel', kreed: 'creed', bakarat: 'baccarat', bacara: 'baccarat', bakara: 'baccarat',
     gucci: 'gucci', guchi: 'gucci', jucci: 'gucci', versachi: 'versace', fersace: 'versace', armany: 'armani', lataffa: 'lattafa', latafa: 'lattafa',
-    khamra: 'khamrah', invektus: 'invictus', milion: 'million', millon: 'million', ysl: 'ysl', 'yves': 'ysl'
+    khamra: 'khamrah', invektus: 'invictus', milion: 'million', millon: 'million', ysl: 'ysl', 'yves': 'ysl',
+    azar: 'azzaro', azaro: 'azzaro', azzaro: 'azzaro', insence: 'incense', insense: 'incense', insenc: 'incense', dukhoon: 'dkhoon', dakhoon: 'dkhoon'
   };
 
   // line word(s) -> brand word(s) added to that product's search words
@@ -132,7 +136,8 @@
   function norm(s) {
     s = String(s || '').toLowerCase();
     s = s.normalize ? s.normalize('NFD').replace(/[̀-ͯ]/g, '') : s;
-    s = s.replace(/[ً-ْـ]/g, '').replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي');
+    // ٓ-ٕ: hamza/madda marks that NFD leaves behind ("إ" -> "ا" + "ٕ"), so "إيروس" matches "ايروس"
+    s = s.replace(/[ً-ٕـ]/g, '').replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي');
     // punctuation (also Arabic ، ؟) -> space, so words can be matched whole
     s = s.replace(/['’`]/g, '').replace(/[^a-z0-9ء-ي٠-٩پچڤگ]+/g, ' ');
     // whole Arabic words only ("يو" must not change "برفيوم"); "ال" in front is allowed ("السوفاج")
@@ -146,6 +151,7 @@
     s = s.normalize ? s.normalize('NFD').replace(/[̀-ͯ]/g, '') : s;
     s = s.replace(/['’`]/g, '').replace(/&/g, ' ').replace(/[^a-z0-9؀-ۿ]+/g, ' ');
     s = s.replace(/\bone\s+million\b|\b1\s+million\b/g, '1million');
+    s = s.replace(/\b(\d{1,2})\s+(pm|am)\b/g, '$1$2').replace(/\bpm\s*(\d{1,2})\b/g, '$1pm');   // "9 pm", "pm9" -> "9pm"
     s = s.split(' ').map(function (w) { return LAT[w] || w; }).join(' ');
     return s.trim();
   }
@@ -198,7 +204,7 @@
       for (var i = 0; i < MOODS.length; i++) if (MOODS[i][0].test(w)) { f.mood = MOODS[i]; return false; }
       if (MEN_W.test(w)) { f.sex = f.sex ? 'any' : 'm'; return false; }
       if (WOMEN_W.test(w)) { f.sex = f.sex ? 'any' : 'w'; return false; }
-      return !FILLER.test(w) && !/^\d{2,5}$/.test(w);
+      return !FILLER.test(w) && !/^\d{4,5}$/.test(w);   // a lone 4-5 digit number is a price; "212", "360" are names
     });
     f.words = words.filter(function (w) { return w.length > 1 || /\d/.test(w); });
     return f;
