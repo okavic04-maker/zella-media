@@ -527,7 +527,16 @@
         return da - db;
       });
       var pick = same.slice(0, 3);
-      if (pick.length < 2 || !anchor.isConnected) return;
+      if (pick.length < 2) return;
+      // after an in-site move React redraws the buttons while the catalog loads: use the current ones, or let the
+      // next page change try again (2026-11-25: the box never showed when the customer came from another product)
+      if (!anchor.isConnected) {
+        var now = Array.prototype.filter.call(document.querySelectorAll('button'), function (b) {
+          return b.textContent.trim() === 'نفذ المخزون' && b.getBoundingClientRect().height > 0 && !b.closest('.home_grid_section_card');
+        });
+        if (!now.length) { altFor = ''; return; }
+        anchor = now[now.length - 1].parentElement;
+      }
       var box = document.createElement('div');
       box.id = 'zalt';
       box.dataset.s = slug;
