@@ -66,6 +66,10 @@
       o.w = o.n.split(' ').filter(Boolean);
       // "1million" -> also "1" + "million"
       o.w.slice().forEach(function (w) { var m = w.match(/^(\d+)([a-z]{3,})$/); if (m) o.w.push(m[1], m[2]); });
+      // "EDP" = "Eau de Parfum", "EDT" = "Eau de Toilette": each name also gets the other spelling
+      function add(ws) { ws.forEach(function (b) { if (o.w.indexOf(b) < 0) o.w.push(b); }); }
+      if (/\beau de parfum\b/.test(o.n)) add(['edp']); if (o.w.indexOf('edp') > -1) add(['eau', 'de', 'parfum']);
+      if (/\beau de toilette\b/.test(o.n)) add(['edt']); if (o.w.indexOf('edt') > -1) add(['eau', 'de', 'toilette']);
       // famous lines carry their brand ("dior sauvage" finds "Sauvage Elixir")
       LINES.forEach(function (l) { if ((' ' + o.n + ' ').indexOf(' ' + l[0] + ' ') > -1) l[1].split(' ').forEach(function (b) { if (o.w.indexOf(b) < 0) o.w.push(b); }); });
       // bundles/offers have Arabic titles (sometimes starting with a quote or emoji)
@@ -99,7 +103,23 @@
     'بلاك اوبيوم': 'black opium', 'اوبيوم': 'opium', 'سي': 'si', 'ايدول': 'idole', 'لانكوم': 'lancome', 'فيرساتشي ديلان': 'versace dylan', 'شيروتي': 'cerruti',
     // from empty searches (Clarity, 2026-11-25)
     'اروجيت': 'arrogate', 'أروجيت': 'arrogate', 'عساف': 'assaf', 'اماراتي': 'emirates', 'امارتي': 'emirates', 'اماراتيه': 'emirates',
-    'امارات': 'emirates', 'دخون': 'dkhoon', 'افنان': 'afnan', 'انسينس': 'incense'
+    'امارات': 'emirates', 'دخون': 'dkhoon', 'افنان': 'afnan', 'انسينس': 'incense',
+    // French / foreign names typed in Arabic (2026-11-25)
+    'لوم': 'lhomme', 'ايديال': 'ideal', 'ايدال': 'ideal', 'لانوي': 'la nuit', 'لا نوي': 'la nuit', 'نوي': 'nuit',
+    'انتردي': 'interdit', 'لانتردي': 'interdit', 'انترديت': 'interdit', 'انجلز شير': 'angels share', 'انجلز': 'angels',
+    'اكس اس': 'xs', 'اكسيس': 'exces', 'اكسس': 'exces', 'اكسكلوسيف': 'exclusif', 'اكسكلوزيف': 'exclusif', 'شيري': 'cherie',
+    'مارلي': 'marly', 'دي مارلي': 'de marly', 'دو مارلي': 'de marly', 'بارفان دو مارلي': 'parfums de marly',
+    'بارفان دي مارلي': 'parfums de marly', 'بارفانز دي مارلي': 'parfums de marly', 'بارفيوم دي مارلي': 'parfums de marly', 'ليتون': 'layton', 'لايتون': 'layton', 'بيجاسوس': 'pegasus', 'هيرود': 'herod',
+    'التير': 'althair', 'الثير': 'althair', 'سيدلي': 'sedley', 'كارلايل': 'carlisle', 'دونا': 'donna', 'اومو': 'uomo',
+    'اكوا': 'acqua', 'اكوا دي جيو': 'acqua di gio', 'جيو': 'gio', 'بروفوندو': 'profondo', 'بروفومو': 'profumo',
+    'سكاندال': 'scandal', 'لو بو': 'le beau', 'لا بيل': 'la belle', 'اولمبيا': 'olympea', 'جنتلمان': 'gentleman', 'جنتل مان': 'gentleman',
+    'ابراهيم القرشي': 'ibraheem alqurashi', 'القرشي': 'alqurashi', 'قرشي': 'alqurashi', 'تورينو': 'torino',
+    'بيلي ايليش': 'billie eilish', 'بيلي': 'billie', 'ايليش': 'eilish', 'مرسيدس': 'mercedes', 'بنز': 'benz', 'واي': 'ysl y',
+    'سوبريم': 'supreme', 'بوكيه': 'bouquet', 'اكسترايت': 'extrait', 'اكستريت': 'extrait', 'باكارا': 'baccarat',
+    'تيرياق': 'teriaq', 'ترياق': 'teriaq', 'بلوم': 'bloom', 'جيلتي': 'guilty', 'جلتي': 'guilty', 'كوستا': 'costa',
+    'ازورا': 'azzurra', 'ازوررا': 'azzurra', 'اوركيد': 'orchid', 'اوركد': 'orchid', 'مادموزيل': 'mademoiselle', 'كوكو': 'coco',
+    'شانس': 'chance', 'بيور': 'pure', 'كينج': 'king', 'كينغ': 'king', 'ديفوشن': 'devotion', 'لايت': 'light', 'هيرو': 'hero',
+    'اكسنتو': 'accento', 'الكسندريا': 'alexandria', 'اربا بورا': 'erba pura', 'نويت': 'nuit'
   };
   var AR_KEYS = Object.keys(AR).sort(function (a, b) { return b.length - a.length; });
 
