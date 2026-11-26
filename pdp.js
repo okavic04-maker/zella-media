@@ -10,8 +10,9 @@
      last a small line «لديك استفسار؟ تواصل معنا عبر واتساب» (WhatsApp with the perfume name).
      Facts = the store policies (EasyOrders → سياسات المتجر). Clarity event deliv_info_<k> when a row opens.
      The theme's policy rows at the bottom and wa-help.js's #zwa-p line are hidden on product pages (pdp-layout.js).
-   Sold out («نفذ المخزون» only): orange card «خلص دلوقتي / بلّغني لما يرجع 💬» (WhatsApp) right after the buttons,
-     above smart-search.js's «بدائل متاحة» box (#zalt). */
+   Sold out («نفذ المخزون» only): orange card «خلص دلوقتي / بلّغني لما يرجع» right after the buttons, above smart-search.js's
+     «بدائل متاحة» box (#zalt): phone field + «بلّغني» -> worker POST /notifyme; the cashier app's order-confirmation WhatsApp
+     number sends one message when it is back (owner 2026-11-26). localStorage zbis-<slug> keeps the «✓ تمام» state. */
 (function () {
   if (window.__zellaEta) return; window.__zellaEta = 1;
   var WA = '6285659440745';   // same number as wa-help.js
@@ -46,6 +47,11 @@
     '#zeta .zm-ask b{display:inline-flex;align-items:center;gap:5px;color:#15803d;font-weight:800}#zeta .zm-ask b svg{color:#22c55e}' +
     '#zeta.zeta-out{border:1px solid #fed7aa;border-radius:16px;background:#fff7ed;overflow:hidden;margin-top:12px}#zeta .ze-o{display:flex;align-items:center;gap:12px;padding:12px 14px;text-decoration:none;color:inherit}' +
     '#zeta .ze-i{flex:0 0 auto;width:42px;height:42px;border-radius:12px;background:#ffedd5;color:#c2410c;display:flex;align-items:center;justify-content:center}#zeta .ze-o small{display:block;font-size:12.5px;color:#64748b;font-weight:600}#zeta .ze-o b{display:block;font-size:16px;font-weight:800;color:#c2410c;margin-top:1px}' +
+    '#zeta .ze-o{padding-bottom:4px}#zeta .ze-f,#zeta .ze-ok{margin:0;padding:0 14px 14px}#zeta .ze-t{margin:2px 0 10px;font-size:14px;line-height:1.6;color:#7c2d12;font-weight:600}' +
+    '#zeta .ze-r{display:flex;gap:8px}#zeta .ze-r input[type=tel]{flex:1;min-width:0;height:48px;border:1.5px solid #fdba74;border-radius:12px;background:#fff;padding:0 12px;font-size:16px;direction:ltr;text-align:right;color:#0f172a;outline:none}' +
+    '#zeta .ze-r input[type=tel]:focus{border-color:#f97316;box-shadow:0 0 0 3px rgba(249,115,22,.15)}#zeta .ze-hp{position:absolute;width:1px;height:1px;padding:0;border:0;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);opacity:0;pointer-events:none}#zeta .ze-f{position:relative}' +
+    '#zeta .ze-r button{flex:0 0 auto;height:48px;padding:0 20px;border:0;border-radius:12px;background:#f97316;color:#fff;font-size:16px;font-weight:800;cursor:pointer}#zeta .ze-r button:disabled{opacity:.7}' +
+    '#zeta .ze-e{margin:8px 0 0;font-size:13px;color:#b91c1c;font-weight:600}#zeta .ze-ok{padding-top:6px;font-size:14.5px;line-height:1.6;color:#15803d;font-weight:700}' +
     '@media (prefers-reduced-motion:reduce){#zeta .zm-b{animation:none}#zeta summary>svg:last-child{transition:none}}';
 
   function cairoNow() { var p = new Intl.DateTimeFormat('en-CA', { timeZone: 'Africa/Cairo', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date()).split('-'); return new Date(+p[0], +p[1] - 1, +p[2]); }
@@ -72,9 +78,59 @@
       '<a class="zm-ask" href="' + askLink(name) + '" target="_blank" rel="noopener">' + ic(Q, 18) + '<span>لديك استفسار؟</span><b>' + waIcon(15) + 'تواصل معنا عبر واتساب</b></a>';
   }
   function lineHTML(date) { return ic(TRUCK, 20) + '<span>التوصيل المتوقع: <b>' + date + '</b></span>'; }
-  function outHTML(name) {
-    return '<a class="ze-o" href="' + waLink('أهلاً Zella Store، البرفيوم ده خلص: ' + name + '\n' + here() + '\nبلّغوني لما يرجع لو سمحتوا') + '" target="_blank" rel="noopener">' +
-      '<span class="ze-i">' + BELL + '</span><span><small>خلص دلوقتي</small><b>بلّغني لما يرجع 💬</b></span></a>';
+  // sold out (owner 2026-11-26): the customer leaves a phone number; when the perfume is back, the order-confirmation
+  // WhatsApp number (cashier app, wa-ship) sends one message by itself. Saved by the worker POST /notifyme {sku, slug, name, phone}.
+  var NOTIFY = 'https://zella-cost-sync.amrxvv.workers.dev/notifyme';
+  function bisKey(slug) { return 'zbis-' + slug.toLowerCase(); }
+  function bisGet(slug) { try { return localStorage.getItem(bisKey(slug)) || ''; } catch (e) { return ''; } }
+  function outHTML(name, slug) {
+    var done = bisGet(slug);
+    return '<div class="ze-o"><span class="ze-i">' + BELL + '</span><span><small>خلص دلوقتي</small><b>بلّغني لما يرجع</b></span></div>' +
+      (done ? '<p class="ze-ok">تمام، هنبعتلك رسالة واتساب على <bdi>' + done + '</bdi> أول ما يرجع ✅</p>' :
+        '<form class="ze-f" novalidate><p class="ze-t">اكتب رقم موبايلك وهنبعتلك رسالة واتساب أول ما يرجع.</p>' +
+        '<div class="ze-r"><input type="tel" inputmode="numeric" autocomplete="tel" maxlength="16" placeholder="01xxxxxxxxx" aria-label="رقم الموبايل">' +
+        '<input class="ze-hp" name="hp" tabindex="-1" autocomplete="off" aria-hidden="true"><button type="submit">بلّغني</button></div><p class="ze-e" hidden></p></form>');
+  }
+  function phoneOf(v) {
+    v = String(v).replace(/[٠-٩]/g, function (d) { return '٠١٢٣٤٥٦٧٨٩'.indexOf(d); }).replace(/[۰-۹]/g, function (d) { return '۰۱۲۳۴۵۶۷۸۹'.indexOf(d); }).replace(/\D/g, '');
+    if (/^(00)?20(1\d{9})$/.test(v)) v = '0' + v.replace(/^(00)?20/, '');
+    return /^01[0125]\d{8}$/.test(v) ? v : '';
+  }
+  var skus = {};
+  function skuOf(slug) {
+    if (skus[slug]) return Promise.resolve(skus[slug]);
+    return fetch('https://api.easy-orders.net/api/v1/products?fields=id,slug,sku&limit=5&filter=slug||$in||' + encodeURIComponent(slug))
+      .then(function (r) { return r.json(); }).then(function (j) {
+        var p = (Array.isArray(j) ? j : (j && j.data) || []).filter(function (x) { return String(x.slug).toLowerCase() === slug.toLowerCase(); })[0];
+        return (skus[slug] = (p && p.sku) || '');
+      });
+  }
+  function bindOut(oe, name, slug) {
+    var f = oe.querySelector('.ze-f'); if (!f) return;
+    var inp = f.querySelector('input[type=tel]'), err = f.querySelector('.ze-e'), b = f.querySelector('button');
+    function say(t) { err.textContent = t; err.hidden = !t; }
+    inp.addEventListener('input', function () { say(''); });
+    f.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var ph = phoneOf(inp.value);
+      if (!ph) { say('اكتب رقم موبايل مصري صحيح من 11 رقم، يبدأ بـ 01.'); inp.focus(); return; }
+      b.disabled = true; b.textContent = '...'; say('');
+      skuOf(slug).then(function (sku) {
+        return fetch(window.__zNotifyUrl || NOTIFY, { method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sku: sku, slug: slug, name: name, phone: ph, hp: f.querySelector('.ze-hp').value }) });
+      }).then(function (r) {
+        if (r.status === 429) throw new Error('many');
+        return r.json().then(function (j) { if (!r.ok || !j || !j.ok) throw new Error((j && j.err) || 'bad'); });
+      }).then(function () {
+        try { localStorage.setItem(bisKey(slug), ph); } catch (x) { }
+        try { window.clarity && window.clarity('event', 'bis_signup'); } catch (x) { }
+        f.outerHTML = '<p class="ze-ok">تمام، هنبعتلك رسالة واتساب على <bdi>' + ph + '</bdi> أول ما يرجع ✅</p>';
+      }).catch(function (x) {
+        b.disabled = false; b.textContent = 'بلّغني';
+        say(x && x.message === 'phone' ? 'اكتب رقم موبايل مصري صحيح من 11 رقم، يبدأ بـ 01.' :
+          x && x.message === 'many' ? 'استنى شوية وجرّب تاني.' : 'حصلت مشكلة، جرّب تاني بعد شوية.');
+      });
+    });
   }
   // BOGO offer only on Men / Women Collection products (EasyOrders automatic discounts run on those two categories)
   var cats = {};
@@ -107,7 +163,7 @@
       if (oe && oe.dataset.k.split('|')[0] !== location.pathname) open = [];
       if (oe) oe.remove();
       oe = document.createElement('div'); oe.id = 'zeta'; oe.dataset.k = key;
-      if (state === 'out') { oe.className = 'zeta-out'; oe.innerHTML = outHTML(name); }
+      if (state === 'out') { oe.className = 'zeta-out'; oe.innerHTML = outHTML(name, slug); bindOut(oe, name, slug); }
       else {
         oe.innerHTML = inHTML(name, date, bogo);
         open.forEach(function (k) { var d = oe.querySelector('details[data-k="' + k + '"]'); if (d) d.open = true; });
