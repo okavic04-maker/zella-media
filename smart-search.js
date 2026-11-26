@@ -260,6 +260,8 @@
       out.sort(function (a, b) { return b[0] - a[0] || a[1].name.length - b[1].name.length; });
       if (out.length) { var top = out[0][0]; out = out.filter(function (x) { return x[0] >= top * 0.6; }); }   // drop weak extras
     }
+    // owner 2026-11-26: full sizes first, minis after them (unless "mini" / "ميني" is typed)
+    if (!qw.some(function (w) { return /^mini/.test(w); })) out = out.filter(function (x) { return x[1].badge !== 'MINI'; }).concat(out.filter(function (x) { return x[1].badge === 'MINI'; }));
     var res = out.slice(0, n || 6).map(function (x) { return x[1]; });
     if (!res.length && f.max && onlyFilter) {   // nothing available under that price: show the closest prices above it
       res = list.filter(function (p) { return !p.offer && p.qty > 0 && p.badge !== 'MINI' && p.price > f.max && passes(p, { sex: f.sex, mood: f.mood }); })
@@ -455,6 +457,19 @@
     document.documentElement.classList.toggle('zss-one', on);
   }
   setInterval(oneBar, 400);
+  // /search page: the theme's own result cards, minis after the full sizes (CSS order, React keeps its nodes)
+  function miniLast() {
+    if (location.pathname !== '/search') return;
+    var q = new URLSearchParams(location.search).get('q') || '';
+    if (/mini|ميني/i.test(q)) return;
+    var cards = document.querySelectorAll('main .grid > div');
+    for (var i = 0; i < cards.length; i++) {
+      var c = cards[i], b = c.querySelector('.zsbc-b');
+      var mini = (b && /MINI/.test(b.textContent)) || /mini size/i.test(c.textContent);
+      if (mini && c.style.order !== '1') c.style.order = '1';
+    }
+  }
+  setInterval(miniLast, 400);
   var lastUrl = location.pathname + location.search;
   setInterval(function () { var u = location.pathname + location.search; if (u !== lastUrl) { lastUrl = u; closeDD(); } }, 300);
 
