@@ -319,7 +319,8 @@
     '#zalt img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:10px;display:block}' +
     '#zalt .zalt-i .zsb-b{bottom:-7px}' +
     '#zalt .zalt-n{font-size:11.5px;line-height:1.3;height:30px;overflow:hidden;direction:ltr}' +
-    '#zalt .zalt-p{font-size:13px;font-weight:700;color:#f97316;margin-top:2px}';
+    '#zalt .zalt-p{font-size:13px;font-weight:700;color:#f97316;margin-top:2px}' +
+    '#zalt .zalt-l{margin-top:5px;font-size:11.5px;line-height:1.45;color:#0f766e;font-weight:700}#zalt .zalt-l span{color:#64748b;font-weight:600}';
   document.head.appendChild(css);
 
   function pill(b) { return b ? '<span class="zsb-b zsb-' + b + '">' + b + '</span>' : ''; }
@@ -515,6 +516,39 @@
   }
 
   // ---------- sold-out product page ----------
+  // notes index (owner 2026-11-26): code/notes.json on zella-media main = {n: {id: name}, p: {slug: "top|heart|base" ids}};
+  // refreshed by the daily notes task; kept 6 h in localStorage. Without it (or for a perfume without notes) the price rule is used.
+  var NOTES_URL = 'https://cdn.jsdelivr.net/gh/okavic04-maker/zella-media@main/notes.json', NKEY = 'zss-notes-v1', notesP = null;
+  function getNotes() {
+    if (notesP) return notesP;
+    try { var c = JSON.parse(localStorage.getItem(NKEY) || 'null'); if (c && c.t > Date.now() - TTL && c.d && c.d.p) return (notesP = Promise.resolve(c.d)); } catch (e) { }
+    notesP = fetch(NOTES_URL).then(function (r) { return r.json(); }).then(function (d) {
+      try { localStorage.setItem(NKEY, JSON.stringify({ t: Date.now(), d: d })); } catch (e) { }
+      return d;
+    }).catch(function () { return null; });
+    return notesP;
+  }
+  function withTimeout(pr, ms) { return Promise.race([pr, new Promise(function (r) { setTimeout(function () { r(null); }, ms); })]); }
+  // score = shared notes weighted by rarity (log(total/count)), base notes x1.3; closest price breaks ties;
+  // fewer than 3 with a shared note -> filled with the closest price (the old rule)
+  function pickByNotes(me, same, N) {
+    var tiers = function (sl) { var v = N && N.p[sl.toLowerCase()]; return v ? v.split('|').map(function (t) { return t ? t.split(',') : []; }) : null; };
+    var mine = tiers(me.slug), dpr = function (p) { return Math.abs(p.price - me.price) / (me.price || 1); };
+    var out = same.map(function (p) { return { p: p, s: 0, sh: [], d: dpr(p) }; });
+    if (mine) {
+      var df = {}, total = 0;
+      Object.keys(N.p).forEach(function (k) { total++; var seen = {}; N.p[k].split(/[|,]/).forEach(function (id) { if (id && !seen[id]) { seen[id] = 1; df[id] = (df[id] || 0) + 1; } }); });
+      var my = {}; mine.forEach(function (t, i) { t.forEach(function (id) { my[id] = Math.max(my[id] || 0, i === 2 ? 1.3 : 1); }); });
+      out.forEach(function (x) {
+        var t = tiers(x.p.slug); if (!t) return; var seen = {}, sh = [];
+        t.forEach(function (a) { a.forEach(function (id) { if (my[id] && !seen[id]) { seen[id] = 1; var w = Math.log(total / df[id]) * my[id]; x.s += w; sh.push([w, N.n[id] || '']); } }); });
+        x.sh = sh.sort(function (a, b) { return b[0] - a[0]; }).map(function (y) { return y[1]; }).filter(Boolean);
+      });
+    }
+    var hit = out.filter(function (x) { return x.sh.length; }).sort(function (a, b) { return (b.s - b.d * 1.5) - (a.s - a.d * 1.5); }).slice(0, 3);
+    if (hit.length < 3) out.filter(function (x) { return hit.indexOf(x) < 0; }).sort(function (a, b) { return a.d - b.d; }).slice(0, 3 - hit.length).forEach(function (x) { hit.push(x); });
+    return hit;
+  }
   var altFor = '';
   function soldOut() {
     var m = location.pathname.match(/^\/products\/([^/?#]+)/);
@@ -539,13 +573,9 @@
           (me.badge === 'MINI' ? p.badge === 'MINI' : p.badge !== 'MINI' && (p.badge === me.badge ||
             (me.badge === 'UNISEX' || p.badge === 'UNISEX') && me.badge !== 'ORIGINAL' && p.badge !== 'ORIGINAL'));
       });
-      // close price first, then same exact badge
-      same.sort(function (a, b) {
-        var da = Math.abs(a.price - me.price) / (me.price || 1) + (a.badge === me.badge ? 0 : 0.15);
-        var db = Math.abs(b.price - me.price) / (me.price || 1) + (b.badge === me.badge ? 0 : 0.15);
-        return da - db;
-      });
-      var pick = same.slice(0, 3);
+      return withTimeout(getNotes(), 2500).then(function (N) {
+      if (location.pathname.indexOf('/products/' + m[1]) !== 0 || document.getElementById('zalt')) return;   // moved on while the notes loaded
+      var pick = pickByNotes(me, same, N);
       if (pick.length < 2) return;
       // after an in-site move React redraws the buttons while the catalog loads: use the current ones, or let the
       // next page change try again (2026-11-25: the box never showed when the customer came from another product)
@@ -559,13 +589,17 @@
       var box = document.createElement('div');
       box.id = 'zalt';
       box.dataset.s = slug;
-      box.innerHTML = '<div class="zalt-h">البرفيوم ده خلص حالياً، بس دي بدائل متاحة 👇</div>' +
-        '<div class="zalt-s">من نفس القسم وفي سعر قريب.</div><div class="zalt-g">' +
-        pick.map(function (p) {
+      var byN = pick.some(function (x) { return x.sh.length >= 2; });
+      box.innerHTML = (byN ? '<div class="zalt-h">البرفيوم ده خلص حالياً، بس دي بدائل قريبة منه في الريحة 👇</div><div class="zalt-s">متاحة دلوقتي، وفيها نفس مكونات كتير منه.</div>' :
+          '<div class="zalt-h">البرفيوم ده خلص حالياً، بس دي بدائل متاحة 👇</div><div class="zalt-s">من نفس القسم وفي سعر قريب.</div>') + '<div class="zalt-g">' +
+        pick.map(function (x) {
+          var p = x.p;
           return '<a href="/products/' + encodeURIComponent(p.slug) + '"><div class="zalt-i"><img alt="" loading="lazy" src="' + esc(p.thumb) + '">' + pill(p.badge) +
-            '</div><div class="zalt-n">' + esc(p.name) + '</div><div class="zalt-p">' + price(p) + '</div></a>';
+            '</div><div class="zalt-n">' + esc(p.name) + '</div><div class="zalt-p">' + price(p) + '</div>' +
+            (x.sh.length ? '<div class="zalt-l"><span>فيه برضه:</span> ' + x.sh.slice(0, 3).map(function (n) { return esc(/\s/.test(n.trim()) ? n : n.replace(/^ال(?=\S{3})/, '')); }).join(' · ') + '</div>' : '') + '</a>';
         }).join('') + '</div>';
       anchor.parentElement.insertBefore(box, anchor.nextSibling);
+      });
     });
   }
   document.addEventListener('click', function (e) {
