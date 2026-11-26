@@ -160,7 +160,7 @@
     tiers = tiers.filter(function (x) { return x.n.length; });
     // owner 2026-11-26: one centered group per tier (top / heart / base), thin lines between, no tier names
     if (tiers.length) return '<div class="zn-tg">' + tiers.map(function (x) {
-      return '<div>' + x.n.map(function (n) { return '<span class="zn-n"><img src="' + esc(n[0]) + '" alt="" loading="lazy">' + esc(n[1].replace(/^ال(?=\S{3})/, '')) + '</span>'; }).join('') + '</div>';
+      return '<div>' + x.n.map(function (n) { return '<span class="zn-n"><img src="' + esc(n[0]) + '" alt="" loading="lazy">' + esc(/\s/.test(n[1].trim()) ? n[1] : n[1].replace(/^ال(?=\S{3})/, '')) + '</span>'; }).join('') + '</div>';
     }).join('<hr>') + '</div>';
     var imgs = desc.querySelectorAll('img'), txt = desc.textContent.replace(/\s+/g, '');
     if (imgs.length === 1 && txt.length < 40) return '<div class="zn-pic"><img src="' + esc(imgs[0].getAttribute('src')) + '" alt="مكونات البرفيوم"></div>';
