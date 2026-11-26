@@ -173,6 +173,10 @@
     s = s.replace(/\bone\s+million\b|\b1\s+million\b/g, '1million');
     s = s.replace(/(^|\s)([ld])\s+([a-z]{3,})/g, '$1$2$3');   // French l'/d' typed with a space: "l homme" -> "lhomme" (like L'Homme)
     s = s.replace(/\b(\d{1,2})\s+(pm|am)\b/g, '$1$2').replace(/\bpm\s*(\d{1,2})\b/g, '$1pm');   // "9 pm", "pm9" -> "9pm"
+    // "N°1", "n1", "no1", "number 1", "نمبر ون", "رقم 1" -> "no 1" (Chanel No 1 / No 5)
+    s = s.replace(/(^|\s)(?:نمبر|رقم|ان|number|nr|no|n)\s*(\d{1,2}|one|ون|وان|five|فايف)(?=\s|$)/g, function (m, a, d) {
+      return a + 'no ' + ({ one: 1, 'ون': 1, 'وان': 1, five: 5, 'فايف': 5 }[d] || d);
+    });
     s = s.split(' ').map(function (w) { return LAT[w] || w; }).join(' ');
     return s.trim();
   }
