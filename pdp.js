@@ -131,7 +131,7 @@
 /* Zella: notes frame on the product page (owner 2026-11-25). One fixed-size card «مكونات البرفيوم» for every product,
    in place of the theme's description (flex order 4 in .p_details_container, see pdp-layout.js):
    - description with the HTML pyramid (≈220 products: titles الإفتتاحية / قلب العطر / المكونات الأساسية + small note
-     pictures) is redrawn as 3 rows «البداية / القلب / القاعدة» of round notes that scroll sideways;
+     pictures) is redrawn as 3 centered groups of round notes (top / heart / base, thin lines between, no names, owner 2026-11-26);
    - description with one notes picture (≈250 products) shows it inside the same frame (contain) (no zoom, owner);
    - anything else (bundles, text) keeps the theme's description untouched.
    The theme node is only hidden (class zn-old), never moved; the frame is rebuilt when the description changes (SPA). */
@@ -142,13 +142,11 @@
     'html.zpdp .product_description.zn-old{display:none!important}' +
     '#znf{margin-top:16px;border:1px solid #e2e8f0;border-radius:18px;background:#fff;direction:rtl;overflow:hidden}' +
     '#znf .zn-h{text-align:center;padding:14px 14px 10px;background:linear-gradient(180deg,#f0fdfa,#fff)}#znf .zn-h b{display:block;font-size:17px;font-weight:800;color:#0f172a}' +
-    '#znf .zn-b{position:relative;height:300px;border-top:1px solid #f1f5f9}' +
-    '#znf .zn-rows{height:100%;display:flex;flex-direction:column;justify-content:space-around;padding:6px 0}' +
-    '#znf .zn-r{display:flex;align-items:center;gap:6px;min-height:0}' +
-    '#znf .zn-l{flex:0 0 62px;padding-right:12px;font-size:12.5px;font-weight:800;color:#0f766e;line-height:1.2}#znf .zn-l i{display:block;font-style:normal;font-size:11px;color:#94a3b8;font-weight:600}' +
-    '#znf .zn-s{flex:1;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:2px 2px 2px 12px;-webkit-mask-image:linear-gradient(270deg,#000 85%,transparent);mask-image:linear-gradient(270deg,#000 85%,transparent)}#znf .zn-s::-webkit-scrollbar{display:none}' +
-    '#znf .zn-n{flex:0 0 64px;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11.5px;font-weight:700;color:#334155;text-align:center;line-height:1.2}' +
-    '#znf .zn-n img{width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid #fff;box-shadow:0 0 0 1px #e2e8f0,0 2px 6px rgba(15,23,42,.08);background:#f8fafc}' +
+    '#znf .zn-b{position:relative;border-top:1px solid #f1f5f9}#znf .zn-b.zn-fix{height:300px}' +
+    '#znf .zn-tg{display:flex;flex-direction:column;align-items:center;padding:8px 10px 14px}#znf .zn-tg>div{display:flex;flex-wrap:wrap;justify-content:center;gap:12px 4px;padding:12px 0}' +
+    '#znf .zn-tg>hr{width:56%;border:0;height:1px;margin:0;background:linear-gradient(90deg,transparent,#99f6e4,transparent)}' +
+    '#znf .zn-n{flex:0 0 60px;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11.5px;font-weight:700;color:#334155;text-align:center;line-height:1.2}' +
+    '#znf .zn-n img{width:50px;height:50px;border-radius:50%;object-fit:cover;border:2px solid #fff;box-shadow:0 0 0 1px #e2e8f0,0 2px 6px rgba(15,23,42,.08);background:#f8fafc}' +
     '#znf .zn-pic{height:100%;display:flex;align-items:center;justify-content:center;padding:10px;background:#fcfcfd}' +
     '#znf .zn-pic img{max-width:100%;max-height:100%;object-fit:contain;border-radius:10px}' +
     '';
@@ -160,10 +158,10 @@
       if (ti >= 0) { var sp = el.parentElement && el.parentElement.querySelector('span'); tiers[ti].n.push([el.getAttribute('src'), sp ? sp.textContent.trim() : (el.alt || '')]); }
     });
     tiers = tiers.filter(function (x) { return x.n.length; });
-    if (tiers.length) return '<div class="zn-rows">' + tiers.map(function (x) {
-      return '<div class="zn-r"><div class="zn-l">' + x.t[0] + '<i>' + x.t[1] + '</i></div><div class="zn-s">' +
-        x.n.map(function (n) { return '<span class="zn-n"><img src="' + esc(n[0]) + '" alt="" loading="lazy">' + esc(n[1].replace(/^ال(?=\S{3})/, '')) + '</span>'; }).join('') + '</div></div>';
-    }).join('') + '</div>';
+    // owner 2026-11-26: one centered group per tier (top / heart / base), thin lines between, no tier names
+    if (tiers.length) return '<div class="zn-tg">' + tiers.map(function (x) {
+      return '<div>' + x.n.map(function (n) { return '<span class="zn-n"><img src="' + esc(n[0]) + '" alt="" loading="lazy">' + esc(n[1].replace(/^ال(?=\S{3})/, '')) + '</span>'; }).join('') + '</div>';
+    }).join('<hr>') + '</div>';
     var imgs = desc.querySelectorAll('img'), txt = desc.textContent.replace(/\s+/g, '');
     if (imgs.length === 1 && txt.length < 40) return '<div class="zn-pic"><img src="' + esc(imgs[0].getAttribute('src')) + '" alt="مكونات البرفيوم"></div>';
     return '';
@@ -179,7 +177,7 @@
     var body = build(desc); if (!body) return;   // keep the theme's description as it is
     if (!document.getElementById('znf-css')) { var s = document.createElement('style'); s.id = 'znf-css'; s.textContent = css; document.head.appendChild(s); }
     f = document.createElement('div'); f.id = 'znf'; f.dataset.k = key;
-    f.innerHTML = '<div class="zn-h"><b>مكونات العطر</b></div><div class="zn-b">' + body + '</div>';
+    f.innerHTML = '<div class="zn-h"><b>مكونات العطر</b></div><div class="zn-b' + (body.indexOf('zn-pic') > 0 ? ' zn-fix' : '') + '">' + body + '</div>';
     desc.classList.add('zn-old'); desc.insertAdjacentElement('beforebegin', f);
   }
   setInterval(run, 500); run();
