@@ -7,7 +7,7 @@
   function sortShow() { document.documentElement.classList.remove('zsort'); }
   function sortHide() { document.documentElement.classList.add('zsort'); setTimeout(sortShow, 2500); }
   var zs = document.createElement('style'); zs.textContent = 'html.zsort main .grid{visibility:hidden}'; (document.head || document.documentElement).appendChild(zs);
-  if (/^\/collections\/(men|women)\/?$/.test(location.pathname) && !/[?&]sort=/.test(location.search)) sortHide();
+  if (/^\/collections\/(men|women|minisize)\/?$/.test(location.pathname) && !/[?&]sort=/.test(location.search)) sortHide();
   var CDN = 'https://cdn.jsdelivr.net/gh/okavic04-maker/zella@b30bc06b1c/';
   var API = 'https://api.easy-orders.net/api/v1/';
   var VIDS = [
@@ -171,12 +171,12 @@
     var a = e.target.closest && e.target.closest('a[href]');
     if (!a || e.ctrlKey || e.metaKey || e.shiftKey || a.target === '_blank') return;
     var u; try { u = new URL(a.getAttribute('href'), location.origin); } catch (er) { return; }
-    if (u.origin !== location.origin || !/^\/collections\/(men|women)\/?$/.test(u.pathname) || /[?&]sort=/.test(u.search)) return;
+    if (u.origin !== location.origin || !/^\/collections\/(men|women|minisize)\/?$/.test(u.pathname) || /[?&]sort=/.test(u.search)) return;
     var rt = window.next && window.next.router; if (!rt || !rt.push) return;
     e.preventDefault(); e.stopPropagation();
     rt.push(u.pathname + '?sort=created_at%2Cdesc');
   }, true);
-  function newestFirst() { /* men & women collections open on "الأحدث" so the newest perfumes come first */ if (/^\/collections\/(men|women)\/?$/.test(location.pathname) && !/[?&]sort=/.test(location.search)) { var to = location.pathname + '?sort=created_at%2Cdesc'; var rt = window.next && window.next.router; if (rt && rt.replace) { if (!newestFirst.busy) { newestFirst.busy = 1; sortHide(); rt.replace(to).catch(function () { location.replace(to); }).then(function () { newestFirst.busy = 0; setTimeout(sortShow, 400); }); } } else location.replace(to); return; }    [].slice.call(document.querySelectorAll('a[href="/collections/men"],a[href="/collections/women"]')).forEach(function (a) { a.setAttribute('href', a.getAttribute('href') + '?sort=created_at%2Cdesc'); });  }  var view = null;
+  function newestFirst() { /* men & women collections open on "الأحدث" so the newest perfumes come first */ if (/^\/collections\/(men|women|minisize)\/?$/.test(location.pathname) && !/[?&]sort=/.test(location.search)) { var to = location.pathname + '?sort=created_at%2Cdesc'; var rt = window.next && window.next.router; if (rt && rt.replace) { if (!newestFirst.busy) { newestFirst.busy = 1; sortHide(); rt.replace(to).catch(function () { location.replace(to); }).then(function () { newestFirst.busy = 0; setTimeout(sortShow, 400); }); } } else location.replace(to); return; }    [].slice.call(document.querySelectorAll('a[href="/collections/men"],a[href="/collections/women"]')).forEach(function (a) { a.setAttribute('href', a.getAttribute('href') + '?sort=created_at%2Cdesc'); });  }  var view = null;
   function close() {
     if (!view) return;
     view.remove(); view = null;
