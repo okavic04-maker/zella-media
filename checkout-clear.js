@@ -208,7 +208,7 @@
     //    exchange); add the delivery time as a third line in the same style.
     var zt = document.querySelector('.checkout_button .zc-trust');
     if (zt && !zt.querySelector('.zck-del')) {
-      var dl = document.createElement('span'); dl.className = 'zck-del'; dl.textContent = '🚚 التوصيل خلال 2–3 أيام عمل';
+      var dl = document.createElement('span'); dl.className = 'zck-del'; dl.textContent = 'التوصيل خلال 2–3 أيام عمل 🚚';
       zt.appendChild(dl);
     }
 
@@ -367,9 +367,19 @@
     }, { passive: true, capture: true });
   })();
 
+  // owner's rule: emojis at the END of a sentence. checkout-bundles.js (old zella repo, jsDelivr can't serve a new copy)
+  // still writes these two with the emoji first, so they are turned around here (2026-11-27).
+  var EMOJI_END = { '🎁 وفّرت مع العرض': 'وفّرت مع العرض 🎁', '🎁 عرض الباندل': 'عرض الباندل 🎁' };
+  function emojiEnd() {
+    try {
+      var x = document.evaluate("//text()[starts-with(normalize-space(.),'🎁 ')]", document.body, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+      for (var i = 0; i < x.snapshotLength; i++) { var tn = x.snapshotItem(i), k = tn.nodeValue.trim(); if (EMOJI_END[k]) tn.nodeValue = tn.nodeValue.replace(k, EMOJI_END[k]); }
+    } catch (e) { }
+  }
   function run() {
     var p = location.pathname;
     roundShip();
+    emojiEnd();
     movingBar();
     if (/^\/checkout/.test(p)) checkout();
     else if (/^\/thanks/.test(p)) thanks();
