@@ -152,7 +152,11 @@
     var oe = document.getElementById('zeta'), ln = document.getElementById('zetl');
     if (!isProduct()) { if (oe) oe.remove(); if (ln) ln.remove(); return; }
     var h1 = document.querySelector('h1.product_name'), name = h1 ? h1.innerText.trim() : '';
-    var buy = btns(/اضغط هنا للشراء/)[0], out = btns(/نفذ المخزون/)[0];
+    // the theme's buy button says the product's own «buy_now_text»; products saved without it say «إتمام الطلب»
+    // (2026-11-26: 9 new products had no rows because of that), so take any buy-style button inside the details column
+    var det0 = document.querySelector('.p_details_container') || document;
+    var own = function (re) { return [].filter.call(det0.querySelectorAll('button'), function (b) { return re.test(b.textContent) && b.offsetParent && !b.closest('.home_grid_section_card,#zella-related,#zalt,#zeta'); }); };
+    var buy = own(/^\s*(اضغط هنا للشراء|إتمام الطلب)\s*$/)[0] || btns(/اضغط هنا للشراء/)[0], out = own(/نفذ المخزون/)[0] || btns(/نفذ المخزون/)[0];
     var anchor = buy || out; if (!anchor || !anchor.parentElement || !name) { if (oe) oe.remove(); if (ln) ln.remove(); return; }
     var slug = decodeURIComponent(location.pathname.split('/')[2] || '');
     var state = (out && !buy) ? 'out' : 'in', date = range(), bogo = state === 'in' && bogoOf(slug) === true;
@@ -193,7 +197,8 @@
    The theme node is only hidden (class zn-old), never moved; the frame is rebuilt when the description changes (SPA). */
 (function () {
   if (window.__zellaNotes) return; window.__zellaNotes = 1;
-  var TIER = { 'الإفتتاحية': ['البداية', 'أول ما تحطه'], 'الافتتاحية': ['البداية', 'أول ما تحطه'], 'قلب العطر': ['القلب', 'بعد شوية'], 'المكونات الأساسية': ['القاعدة', 'اللي بيفضل'], 'القاعدة': ['القاعدة', 'اللي بيفضل'] };
+  var TIER = { 'الإفتتاحية': ['البداية', 'أول ما تحطه'], 'الافتتاحية': ['البداية', 'أول ما تحطه'], 'قلب العطر': ['القلب', 'بعد شوية'], 'المكونات الأساسية': ['القاعدة', 'اللي بيفضل'], 'القاعدة': ['القاعدة', 'اللي بيفضل'],
+    'المكونات': ['المكونات', ''], 'مكونات العطر': ['المكونات', ''], 'مكونات البرفيوم': ['المكونات', ''] };   // one-group descriptions (e.g. dgRose)
   var css =
     'html.zpdp .product_description.zn-old{display:none!important}' +
     '#znf{margin-top:16px;border:1px solid #e2e8f0;border-radius:18px;background:#fff;direction:rtl;overflow:hidden}' +
@@ -209,8 +214,9 @@
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function build(desc) {
     var tiers = [], ti = -1;
-    [].forEach.call(desc.querySelectorAll('div,img'), function (el) {
-      if (el.tagName === 'DIV') { if (el.childElementCount === 0 && TIER[el.textContent.trim()]) { tiers.push({ t: TIER[el.textContent.trim()], n: [] }); ti = tiers.length - 1; } return; }
+    // titles come as <div>الإفتتاحية</div> (newer) or <p><strong>الإفتتاحية</strong></p> (older editor, 2026-11-26: those showed the old look)
+    [].forEach.call(desc.querySelectorAll('div,p,strong,b,span,h1,h2,h3,h4,h5,h6,img'), function (el) {
+      if (el.tagName !== 'IMG') { var tt = el.textContent.replace(/[:：]/g, '').trim(); if (el.childElementCount === 0 && TIER[tt]) { tiers.push({ t: TIER[tt], n: [] }); ti = tiers.length - 1; } return; }
       if (ti >= 0) { var sp = el.parentElement && el.parentElement.querySelector('span'); tiers[ti].n.push([el.getAttribute('src'), sp ? sp.textContent.trim() : (el.alt || '')]); }
     });
     tiers = tiers.filter(function (x) { return x.n.length; });
@@ -271,6 +277,12 @@
   function run() {
     var on = /^\/products\/[^\/]+/.test(location.pathname), h = document.documentElement;
     h.classList.toggle('zpdp', on); if (!on) return;
+    // products without a description have the policy rows outside the description block (CSS above misses them):
+    // hide any «سياسة …» disclosure row on the page, the delivery card #zeta already holds these facts
+    [].forEach.call(document.querySelectorAll('.p_details_container button[id^="headlessui-disclosure"]'), function (b) {
+      if (!/سياسة/.test(b.textContent)) return;
+      var w = b.parentElement; if (w && w.style.display !== 'none') w.style.setProperty('display', 'none', 'important');
+    });
     var im = document.querySelector('.p_gallery_container img');
     if (im && im.loading === 'lazy') { im.loading = 'eager'; im.setAttribute('fetchpriority', 'high'); }
   }
