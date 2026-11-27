@@ -267,6 +267,7 @@
     'المكونات': ['المكونات', ''], 'مكونات العطر': ['المكونات', ''], 'مكونات البرفيوم': ['المكونات', ''] };   // one-group descriptions (e.g. dgRose)
   var css =
     'html.zpdp .product_description.zn-old{display:none!important}' +
+    'html.zpdp .product_description .zn-hide{display:none!important}' +
     '#znf{margin-top:16px;border:1px solid #e2e8f0;border-radius:18px;background:#fff;direction:rtl;overflow:hidden}' +
     '#znf .zn-h{text-align:center;padding:14px 14px 10px;background:linear-gradient(180deg,#f0fdfa,#fff)}#znf .zn-h b{display:block;font-size:17px;font-weight:800;color:#0f172a}' +
     '#znf .zn-b{position:relative;border-top:1px solid #f1f5f9}#znf .zn-b.zn-fix{height:300px}' +
@@ -283,7 +284,8 @@
     // titles come as <div>الإفتتاحية</div> (newer) or <p><strong>الإفتتاحية</strong></p> (older editor, 2026-11-26: those showed the old look)
     [].forEach.call(desc.querySelectorAll('div,p,strong,b,span,h1,h2,h3,h4,h5,h6,img'), function (el) {
       if (el.tagName !== 'IMG') { var tt = el.textContent.replace(/[:：]/g, '').trim(); if (el.childElementCount === 0 && TIER[tt]) { tiers.push({ t: TIER[tt], n: [] }); ti = tiers.length - 1; } return; }
-      if (ti >= 0) { var sp = el.parentElement && el.parentElement.querySelector('span'); tiers[ti].n.push([el.getAttribute('src'), sp ? sp.textContent.trim() : (el.alt || '')]); }
+      // 2026-11-27: a note needs a name; a picture without one (a promo PNG after a «القاعدة:» text line, borninroma) is not a note
+      if (ti >= 0) { var sp = el.parentElement && el.parentElement.querySelector('span'); var nm = sp ? sp.textContent.trim() : (el.alt || '').trim(); if (nm) tiers[ti].n.push([el.getAttribute('src'), nm]); }
     });
     tiers = tiers.filter(function (x) { return x.n.length; });
     // owner 2026-11-26: one centered group per tier (top / heart / base), thin lines between, no tier names
@@ -301,12 +303,26 @@
     var key = location.pathname + '|' + desc.innerHTML.length;
     if (f && f.dataset.k === key && document.body.contains(f)) return;
     if (f) f.remove();
-    desc.classList.remove('zn-old');
+    desc.classList.remove('zn-old', 'zn-rest');
+    [].forEach.call(desc.querySelectorAll('.zn-hide'), function (x) { x.classList.remove('zn-hide'); });
     var body = build(desc); if (!body) return;   // keep the theme's description as it is
     if (!document.getElementById('znf-css')) { var s = document.createElement('style'); s.id = 'znf-css'; s.textContent = css; document.head.appendChild(s); }
     f = document.createElement('div'); f.id = 'znf'; f.dataset.k = key;
     f.innerHTML = '<div class="zn-h"><b>مكونات العطر</b></div><div class="zn-b' + (body.indexOf('zn-pic') > 0 ? ' zn-fix' : '') + '">' + body + '</div>';
-    desc.classList.add('zn-old'); desc.insertAdjacentElement('beforebegin', f);
+    // 2026-11-27 (intensely: the sales text under the pyramid was hidden with it): when the description has more than the
+    // notes (text, a video, pictures), hide only the block that holds the notes and keep the rest visible.
+    var blk = notesBlock(desc);
+    if (blk) { blk.classList.add('zn-hide'); desc.classList.add('zn-rest'); } else desc.classList.add('zn-old');
+    desc.insertAdjacentElement('beforebegin', f);
+  }
+  function notesBlock(desc) {
+    var box = desc; while (box.children.length === 1 && box.firstElementChild.children.length) box = box.firstElementChild;   // the theme wraps it in .ql-editor
+    var kids = [].filter.call(box.children, function (c) { return c.textContent.trim() || c.querySelector('img,iframe,video'); });
+    var hold = kids.filter(function (c) { return [].some.call(c.querySelectorAll('div,p,strong,b,span,h1,h2,h3,h4,h5,h6'), function (el) { return el.childElementCount === 0 && TIER[el.textContent.replace(/[:：]/g, '').trim()]; }); });
+    if (hold.length !== 1 || kids.length < 2) return null;
+    var rest = kids.filter(function (c) { return c !== hold[0]; });
+    var more = rest.some(function (c) { return c.textContent.replace(/\s+/g, '').length > 20 || c.querySelector('img,iframe,video'); });
+    return more ? hold[0] : null;
   }
   setInterval(run, 500); run();
 })();
