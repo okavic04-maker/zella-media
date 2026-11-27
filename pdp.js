@@ -43,6 +43,7 @@
     /* owner 2026-11-27: «التوصيل المتوقع» centered in its own rounded frame; the path comes out from under it in a narrower rounded frame */
     '#zetl .zt-h{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;gap:12px;width:100%;padding:14px 14px 17px;border:1px solid #e2e8f0;border-radius:18px;background:linear-gradient(180deg,#f0fdfa,#fff 75%);box-shadow:0 1px 3px rgba(15,23,42,.05);cursor:pointer;color:inherit;-webkit-tap-highlight-color:transparent}' +
     '#zetl .zt-all{display:inline-block;margin-right:6px;padding:1px 8px;border-radius:999px;background:#ccfbf1;color:#0f766e;font-size:10.5px;font-weight:800;font-style:normal;line-height:1.6;vertical-align:1px}' +
+    '#zetl .zt-h i svg{transform:scaleX(-1)}' +   /* owner: the truck faces left, the way it drives in RTL */
     '#zetl .zt-h:focus-visible{outline:2px solid #14b8a6;outline-offset:2px}' +
     '#zetl .zt-h i{font-style:normal;flex:0 0 44px;height:44px;border-radius:50%;background:#fff;color:#0d9488;display:flex;align-items:center;justify-content:center;box-shadow:inset 0 0 0 1.5px #99f6e4,0 2px 6px rgba(20,184,166,.12)}' +
     '#zetl .zt-h span{text-align:right}#zetl .zt-h small{display:block;font-size:12px;color:#64748b;font-weight:700;line-height:1.3}#zetl .zt-h b{display:block;font-size:17px;font-weight:800;color:#0f172a;line-height:1.35;white-space:nowrap}' +
