@@ -349,6 +349,14 @@
       if (!/سياسة/.test(b.textContent)) return;
       var w = b.parentElement; if (w && w.style.display !== 'none') w.style.setProperty('display', 'none', 'important');
     });
+    // sold out: the theme shows «نفذ المخزون» twice (buy + add to cart); keep the first one only (owner 2026-11-27)
+    // (React reuses the buttons on the next product, so a hidden one is shown again once its text changes)
+    var bs = document.querySelectorAll('.p_details_container .mt-5.flex.flex-col button'), seen = 0;
+    [].forEach.call(bs, function (b) {
+      var out = /^\s*نفذ المخزون\s*$/.test(b.textContent);
+      if (out && seen++) { if (!b.dataset.zout) { b.dataset.zout = '1'; b.style.setProperty('display', 'none', 'important'); } }
+      else if (b.dataset.zout) { delete b.dataset.zout; b.style.removeProperty('display'); }
+    });
     var im = document.querySelector('.p_gallery_container img');
     if (im && im.loading === 'lazy') { im.loading = 'eager'; im.setAttribute('fetchpriority', 'high'); }
   }
