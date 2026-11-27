@@ -66,6 +66,7 @@
     '#zeta:not(.zeta-out){border:1px solid #e2e8f0;border-radius:18px;background:#fff;overflow:hidden;box-shadow:0 1px 2px rgba(15,23,42,.04)}#zeta details+details{border-top:1px solid #f1f5f9}' +
     '#zeta summary{list-style:none;display:flex;align-items:center;gap:12px;padding:12px 14px;font-size:15px;font-weight:800;color:#0f172a;cursor:pointer;-webkit-tap-highlight-color:transparent}#zeta summary::-webkit-details-marker{display:none}#zeta summary:focus-visible{outline:2px solid #14b8a6;outline-offset:-2px}' +
     '#zeta .zr-i{font-style:normal;flex:0 0 36px;height:36px;border-radius:12px;background:#f0fdfa;color:#0d9488;display:flex;align-items:center;justify-content:center}' +
+    '#zeta details[data-k="0"] .zr-i svg{transform:scaleX(-1)}' +   /* owner: trucks face left */
     '#zeta summary span{flex:1}#zeta summary>svg:last-child{color:#64748b;transition:transform .25s}#zeta details[open] summary>svg:last-child{transform:rotate(180deg)}#zeta details[open]{background:#fcfffe}' +
     '#zeta .zm-b{padding:2px 14px 16px;animation:zmo .25s ease-out}@keyframes zmo{from{opacity:0;transform:translateY(-4px)}}' +
     '#zeta .zm-d{display:flex;gap:12px;align-items:flex-start}#zeta .zm-d>i{flex:0 0 42px;height:42px;border-radius:50%;background:#fff;color:#0d9488;box-shadow:inset 0 0 0 1.5px #99f6e4;display:flex;align-items:center;justify-content:center;font-style:normal}' +
@@ -357,6 +358,11 @@
 /* Zella: motion on the product page (owner 2026-11-27, from preview/anim-prev.js):
    - notes frame #znf: the first time it is well in view, top notes come in, then heart, then base (lines between draw);
    - offer row #zeta details.zof: each time it opens, الأولى -> line -> التانية -> «أو» -> التالتة appear in turn, the gift shakes.
+   2026-11-27 (owner: all of preview/anim2-prev.js except «اتضافت ✓»):
+   - price: the old price is struck by a line that draws itself, the new price (#sale-price) glows once, the % pill pops;
+   - row icons move when a row opens (truck drives, cash flips, arrows turn, gift shakes);
+   - sold out: the bell rings when the «بلّغني لما يرجع» card is seen and again when the «تمام» line appears;
+   - «بدائل متاحة» (#zalt): the 3 cards come in one after another when the box is seen.
    Off under prefers-reduced-motion. */
 (function () {
   if (window.__zellaMotion) return; window.__zellaMotion = 1;
@@ -388,4 +394,50 @@
     var y = d.querySelector('.zy'); if (!y) return; y.classList.remove('zgo'); void y.offsetWidth; y.classList.add('zgo');
   }, true);
   setInterval(notes, 400); notes();
+})();
+
+/* part 2 (2026-11-27) */
+(function () {
+  if (window.__zellaMotion2) return; window.__zellaMotion2 = 1;
+  var css =
+    '#zeta details[open] .zr-i svg{animation:var(--za) .8s ease-out both}' +
+    '#zeta details[data-k="0"]{--za:zai0}#zeta details[data-k="1"]{--za:zai1}#zeta details[data-k="2"]{--za:zai2}#zeta details[data-k="3"]{--za:zai3}' +
+    '@keyframes zai0{0%{transform:scaleX(-1)}40%{transform:scaleX(-1) translateX(7px)}41%{transform:scaleX(-1) translateX(-9px);opacity:0}60%{opacity:1}100%{transform:scaleX(-1)}}' +
+    '@keyframes zai1{from{transform:rotateY(0)}to{transform:rotateY(360deg)}}@keyframes zai2{from{transform:rotate(0)}to{transform:rotate(180deg)}}' +
+    '@keyframes zai3{0%,100%{transform:rotate(0)}20%{transform:rotate(-14deg)}40%{transform:rotate(11deg)}60%{transform:rotate(-6deg)}80%{transform:rotate(3deg)}}' +
+    '#zeta .ze-i.zring svg{transform-origin:50% 10%;animation:zring 1s ease-in-out 2}@keyframes zring{0%,100%{transform:rotate(0)}15%{transform:rotate(18deg)}30%{transform:rotate(-16deg)}45%{transform:rotate(11deg)}60%{transform:rotate(-7deg)}75%{transform:rotate(3deg)}}' +
+    '#zalt.zaw a{opacity:0;transform:translateY(14px)}#zalt.zaw.zgo a{animation:zan2 .5s cubic-bezier(.2,.8,.2,1) both}#zalt.zaw.zgo a:nth-child(2){animation-delay:.15s}#zalt.zaw.zgo a:nth-child(3){animation-delay:.3s}@keyframes zan2{to{opacity:1;transform:none}}' +
+    '.zas-o{text-decoration:none!important;position:relative;display:inline-block}.zas-o::after{content:"";position:absolute;right:-2px;left:-2px;top:52%;height:1.5px;background:currentColor;transform-origin:right;transform:scaleX(0)}.zas-o.zgo::after{animation:zah2 .5s ease-out .2s both}@keyframes zah2{to{transform:scaleX(1)}}' +
+    '.zas-n.zgo{animation:zpn 1.2s ease-out .6s both}@keyframes zpn{0%,100%{text-shadow:none}40%{text-shadow:0 0 12px rgba(20,184,166,.55)}}' +
+    '.zas-c.zgo{animation:zan3 .45s cubic-bezier(.3,1.6,.5,1) .75s both}@keyframes zan3{from{opacity:0;transform:scale(.5)}}' +
+    '@media (prefers-reduced-motion:reduce){#zeta .zr-i svg,#zeta .ze-i svg,#zalt a,.zas-o::after,.zas-n,.zas-c{animation:none!important}#zalt.zaw a{opacity:1;transform:none}.zas-o::after{transform:scaleX(1)}}';
+  var st = document.createElement('style'); st.id = 'zmotion2-css'; st.textContent = css; document.head.appendChild(st);
+  var wait = [];   // checked on every tick (no IntersectionObserver: it never fires in a hidden tab, and #zalt would stay invisible)
+  function once(el, fn, r) { wait.push([el, fn, r]); }
+  function seen(el, r) { var b = el.getBoundingClientRect(), h = innerHeight || 800, v = Math.min(b.bottom, h) - Math.max(b.top, 0); return b.height > 0 && v >= b.height * r - 1; }
+  document.addEventListener('toggle', function (e) {   // replay the row icon each time a row opens
+    var d = e.target; if (!d.matches || !d.matches('#zeta details') || !d.open) return;
+    var s = d.querySelector('.zr-i svg'); if (s) { s.style.animation = 'none'; void s.offsetWidth; s.style.animation = ''; }
+  }, true);
+  function tick() {
+    wait = wait.filter(function (w) { if (!document.body.contains(w[0])) return false; if (seen(w[0], w[2])) { w[1](); return false; } return true; });
+    if (!/^\/products\//.test(location.pathname)) return;
+    var bi = document.querySelector('#zeta.zeta-out .ze-i');
+    if (bi && !bi.__z) { bi.__z = 1; once(bi, function () { bi.classList.add('zring'); setTimeout(function () { bi.classList.remove('zring'); }, 2100); }, .9); }
+    var ok = document.querySelector('#zeta .ze-ok');
+    if (ok && !ok.__z && bi) { ok.__z = 1; bi.classList.remove('zring'); void bi.offsetWidth; bi.classList.add('zring'); setTimeout(function () { bi.classList.remove('zring'); }, 2100); }
+    var za = document.getElementById('zalt');
+    if (za && !za.__z && za.querySelector('a')) { za.__z = 1; za.classList.add('zaw'); once(za, function () { za.classList.add('zgo'); }, .4); }
+    var det = document.querySelector('.p_details_container'); if (!det) return;
+    var o = [].filter.call(det.querySelectorAll('p,span,del,s'), function (x) {
+      return x.childElementCount === 0 && /\d/.test(x.textContent) && !x.closest('#zella-related,#zalt,#zeta,#znf,.home_grid_section_card') && /line-through/.test(getComputedStyle(x).textDecorationLine + ' ' + x.className);
+    })[0];
+    if (o && !o.classList.contains('zas-o')) {
+      o.classList.add('zas-o');
+      var n = det.querySelector('#sale-price'), pc = [].filter.call(det.querySelectorAll('p'), function (x) { return /^\s*\d+%-?\s*$/.test(x.textContent) && !x.closest('#zella-related'); })[0];
+      if (n) n.classList.remove('zgo'), n.classList.add('zas-n'); if (pc) pc.classList.remove('zgo'), pc.classList.add('zas-c');
+      once(o, function () { o.classList.add('zgo'); if (n) n.classList.add('zgo'); if (pc) pc.classList.add('zgo'); }, .9);
+    }
+  }
+  setInterval(tick, 250); addEventListener('scroll', tick, { passive: true }); tick();
 })();
