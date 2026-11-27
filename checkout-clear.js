@@ -278,7 +278,7 @@
   }
   var mbObs = null, mbWatched = null;
   function movingBar() {
-    if (!/^\/products\//.test(location.pathname)) return;
+    if (!/^\/products\//.test(location.pathname)) { var f0 = document.querySelector('footer'); if (f0 && f0.style.paddingBottom) f0.style.paddingBottom = ''; return; }
     var bar = document.querySelector('section.fixed.inset-x-5 > div.bottom-0.w-full');
     var btn = bar && bar.querySelector('button');
     if (!btn) return;
@@ -292,9 +292,14 @@
         var b = document.querySelector('section.fixed.inset-x-5 > div.bottom-0.w-full');
         var a = pageAdd();
         if (!b) return;
-        var show = !!a && a.getBoundingClientRect().bottom < window.innerHeight - 170;
+        // owner 2026-11-27 (seen on his phone: two «أضف للسلة» at once, and the bar covered the end of the page):
+        // show it only once the page's own button has left the screen at the top, and give the page room under it
+        var show = !!a && a.getBoundingClientRect().bottom < 0;
         b.classList.toggle('zck-mbar-hide', !show);
         b.classList.toggle('zck-mbar-show', show); // Header CSS keeps the bar hidden until this class is set (no flash on load)
+        var pad = show ? Math.max(0, Math.round(window.innerHeight - b.getBoundingClientRect().top)) + 12 + 'px' : '';   // bar + the bottom nav under it
+        var ft = document.querySelector('footer');   // body has a fixed height here, the footer carries the room (theme gives it 90px for the nav)
+        if (ft && ft.style.paddingBottom !== pad) ft.style.paddingBottom = pad;
       };
       window.addEventListener('scroll', check, { passive: true });
       window.addEventListener('resize', check);
