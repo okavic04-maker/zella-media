@@ -604,7 +604,10 @@
             '</div><div class="zalt-n">' + esc(p.name) + '</div><div class="zalt-p">' + price(p) + '</div>' +
             (x.sh.length ? '<div class="zalt-l"><span>فيه برضه:</span> ' + x.sh.slice(0, 3).map(function (n) { return esc(/\s/.test(n.trim()) ? n : n.replace(/^ال(?=\S{3})/, '')); }).join(' · ') + '</div>' : '') + '</a>';
         }).join('') + '</div>';
-      anchor.parentElement.insertBefore(box, anchor.nextSibling);
+      // 2026-11-27: go under pdp.js's sold-out card #zeta (it keeps itself right after the buttons); before, both swapped
+      // places once on every sold-out page load (CLS 0.12)
+      var after = anchor.nextElementSibling && anchor.nextElementSibling.id === 'zeta' ? anchor.nextElementSibling : anchor;
+      after.parentElement.insertBefore(box, after.nextSibling);
       });
     });
   }
