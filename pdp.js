@@ -10,6 +10,9 @@
      last a small line «لديك استفسار؟ تواصل معنا عبر واتساب» (WhatsApp with the perfume name).
      Facts = the store policies (EasyOrders → سياسات المتجر). Clarity event deliv_info_<k> when a row opens.
      The theme's policy rows at the bottom and wa-help.js's #zwa-p line are hidden on product pages (pdp-layout.js).
+   2026-11-27 (owner picked idea 3 of preview/eta-ideas.js): the line #zetl is now a card: 3 facts (delivery dates / COD /
+     48 h exchange, a tap opens that row, Clarity deliv_fact_<k>) + a path «النهارده -> أقرب يوم -> آخر موعد»; the rows are one
+     card with icon tiles, an open row = icon bubble + title + text + highlighted note; WhatsApp line is the card's footer.
    Sold out («نفذ المخزون» only): orange card «خلص دلوقتي / بلّغني لما يرجع» right after the buttons, above smart-search.js's
      «بدائل متاحة» box (#zalt): phone field + «بلّغني» -> worker POST /notifyme; the cashier app's order-confirmation WhatsApp
      number sends one message when it is back (owner 2026-11-26). localStorage zbis-<slug> keeps the «✓ تمام» state. */
@@ -24,27 +27,44 @@
   var SWAP = '<path d="M4 9h13l-3-3M20 15H7l3 3"/>';
   var DROP = '<path d="M9 3h6M10 3v3h4V3M8 6h8l1.5 3v10a2 2 0 0 1-2 2h-7a2 2 0 0 1-2-2V9z"/>';
   var GIFT = '<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M5 12v8h14v-8M12 8v12M12 8S10.5 4 8 4.5 7.5 8 12 8zM12 8s1.5-4 4-3.5S16.5 8 12 8z"/>';
+  var HAND = '<path d="M3 15h3l4 2h4a1.5 1.5 0 0 0 0-3h-3"/><path d="M6 20l-3-1v-4M14 14l4.5-2a1.5 1.5 0 0 1 1.5 2.5L14 19H9"/><rect x="9" y="3" width="10" height="6.5" rx="1.2"/><circle cx="14" cy="6.2" r="1.3"/>';
+  var SHIELD = '<path d="M12 3l8 3v6c0 4.5-3.4 8-8 9-4.6-1-8-4.5-8-9V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/>';
+  var CAL = '<rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/>';
   var Q = '<circle cx="12" cy="12" r="9"/><path d="M9.6 9.3a2.5 2.5 0 0 1 4.8.9c0 1.7-2.4 2.2-2.4 3.6M12 17h.01"/>';
   var DOWN = ic('<path d="M6 9l6 6 6-6"/>', 18);
   var BELL = ic('<path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15zM10 20a2 2 0 0 0 4 0"/>', 22);
   function waIcon(w) { return '<svg viewBox="0 0 24 24" width="' + w + '" height="' + w + '" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm4.5 12.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.2 2.2 2.2 0 0 0 .1-1.3c0-.1-.2-.2-.4-.3z"/></svg>'; }
   var css =
     '#zeta{margin:16px 0 4px;direction:rtl;color:#0f172a}#zeta.zeta-out{margin-top:12px}' +
-    '#zetl{display:flex;align-items:center;gap:8px;margin:16px 0 0;padding:2px;direction:rtl;font-size:14.5px;color:#475569;font-weight:600}#zetl svg{color:#0f172a}#zetl b{color:#0f172a;font-weight:800}' +
-    '#zeta details{border:1px solid #e5e7eb;border-radius:14px;background:#fff;margin-top:10px;overflow:hidden}#zeta details:first-child{margin-top:0}' +
-    '#zeta summary{list-style:none;display:flex;align-items:center;gap:10px;padding:15px 16px;font-size:15px;font-weight:800;color:#0f172a;cursor:pointer}#zeta summary::-webkit-details-marker{display:none}' +
-    '#zeta summary>svg:first-child{color:#0d9488}#zeta summary span{flex:1}#zeta summary>svg:last-child{color:#0f172a;transition:transform .25s}#zeta details[open] summary>svg:last-child{transform:rotate(180deg)}' +
-    '#zeta .zm-b{padding:0 14px 14px;animation:zmo .25s ease-out}@keyframes zmo{from{opacity:0;transform:translateY(-4px)}}' +
-    '#zeta .zm-p{margin:0;padding:0 4px;font-size:14.5px;line-height:1.7;color:#475569}#zeta .zm-p b{color:#0f172a;font-weight:800}' +
-    '#zeta details.zof{border-color:#fed7aa;background:#fff7ed}#zeta details.zof summary>svg:first-child{color:#f97316}#zeta details.zof summary span{color:#9a3412}#zeta details.zof summary>svg:last-child{color:#c2410c}#zeta details.zof .zm-b{background:#fff;border-top:1px solid #fed7aa;padding:14px 10px 12px}' +
+    '#zetl,#zeta,#zetl *,#zeta *{font-family:Almarai,sans-serif!important;letter-spacing:0}' +
+    /* top card (owner 2026-11-27, idea 3): 3 facts (tap = open its row below) + delivery path today -> first day -> last day */
+    '#zetl{margin:16px 0 0;direction:rtl;border:1px solid #e2e8f0;border-radius:18px;background:#fff;overflow:hidden;box-shadow:0 1px 2px rgba(15,23,42,.04)}' +
+    '#zetl .zt-f{display:flex}#zetl .zt-f>button{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:3px;padding:11px 4px 9px;border:0;background:none;cursor:pointer;color:inherit;-webkit-tap-highlight-color:transparent;transition:background .2s}' +
+    '#zetl .zt-f>button+button{border-right:1px solid #f1f5f9}#zetl .zt-f>button:active{background:#f0fdfa}#zetl button:focus-visible{outline:2px solid #14b8a6;outline-offset:-2px}' +
+    '#zetl .zt-f i{font-style:normal;width:36px;height:36px;margin-bottom:3px;border-radius:50%;background:#f0fdfa;color:#0d9488;display:flex;align-items:center;justify-content:center;box-shadow:inset 0 0 0 1.5px #99f6e4}' +
+    '#zetl .zt-f b{font-size:14.5px;font-weight:800;color:#0f172a;line-height:1.25;white-space:nowrap}#zetl .zt-f small{font-size:10.5px;color:#94a3b8;font-weight:700;line-height:1.2}' +
+    '#zetl .zt-p{display:flex;align-items:flex-start;padding:9px 12px 10px;background:linear-gradient(180deg,#f8fafc,#fff);border-top:1px solid #f1f5f9}' +
+    '#zetl .zt-p>div{flex:0 0 76px;display:flex;flex-direction:column;align-items:center;text-align:center}#zetl .zt-p>i{flex:1;height:2px;margin-top:4px;border-radius:2px;background:linear-gradient(90deg,#14b8a6,#99f6e4)}' +
+    '#zetl .zt-p u{width:10px;height:10px;border-radius:50%;background:#fff;border:2.5px solid #14b8a6}#zetl .zt-p>div:last-child u{background:#14b8a6;box-shadow:0 0 0 4px rgba(20,184,166,.15)}' +
+    '#zetl .zt-p b{margin-top:4px;font-size:13px;font-weight:800;color:#0f172a;line-height:1.2;white-space:nowrap}#zetl .zt-p small{font-size:10px;color:#94a3b8;font-weight:700;line-height:1.2}#zetl .zt-p>div:last-child b{color:#0d9488}' +
+    /* rows: one card, thin lines between, icon tiles; an open row shows icon bubble + title + text + highlighted note */
+    '#zeta:not(.zeta-out){border:1px solid #e2e8f0;border-radius:18px;background:#fff;overflow:hidden;box-shadow:0 1px 2px rgba(15,23,42,.04)}#zeta details+details{border-top:1px solid #f1f5f9}' +
+    '#zeta summary{list-style:none;display:flex;align-items:center;gap:12px;padding:12px 14px;font-size:15px;font-weight:800;color:#0f172a;cursor:pointer;-webkit-tap-highlight-color:transparent}#zeta summary::-webkit-details-marker{display:none}#zeta summary:focus-visible{outline:2px solid #14b8a6;outline-offset:-2px}' +
+    '#zeta .zr-i{font-style:normal;flex:0 0 36px;height:36px;border-radius:12px;background:#f0fdfa;color:#0d9488;display:flex;align-items:center;justify-content:center}' +
+    '#zeta summary span{flex:1}#zeta summary>svg:last-child{color:#64748b;transition:transform .25s}#zeta details[open] summary>svg:last-child{transform:rotate(180deg)}#zeta details[open]{background:#fcfffe}' +
+    '#zeta .zm-b{padding:2px 14px 16px;animation:zmo .25s ease-out}@keyframes zmo{from{opacity:0;transform:translateY(-4px)}}' +
+    '#zeta .zm-d{display:flex;gap:12px;align-items:flex-start}#zeta .zm-d>i{flex:0 0 42px;height:42px;border-radius:50%;background:#fff;color:#0d9488;box-shadow:inset 0 0 0 1.5px #99f6e4;display:flex;align-items:center;justify-content:center;font-style:normal}' +
+    '#zeta .zm-d b{display:block;font-size:14.5px;font-weight:800;color:#0f172a;line-height:1.4}#zeta .zm-d p{margin:3px 0 7px;font-size:13.5px;line-height:1.55;color:#64748b}' +
+    '#zeta .zm-n{display:inline;padding:1px 4px;font-size:13px;font-weight:800;color:#0f172a;background:linear-gradient(transparent 55%,#ccfbf1 55%)}' +
+    '#zeta details.zof summary .zr-i{background:#ffedd5;color:#f97316}#zeta details.zof summary span{color:#9a3412}#zeta details.zof[open]{background:#fffaf5}#zeta details.zof .zm-b{padding:6px 10px 14px}' +
     '#zeta .zy{display:flex;align-items:flex-start;justify-content:space-between;padding:2px 0}#zeta .zy>div{flex:0 0 72px;display:flex;flex-direction:column;align-items:center;text-align:center}' +
     '#zeta .zy>i{flex:1;margin-top:24px;height:2px;background:#99f6e4;display:flex;align-items:center;justify-content:center}#zeta .zy>i.o{background:none;border-top:2px dashed #fdba74;height:0}' +
     '#zeta .zy>i u{text-decoration:none;margin-top:-1px;padding:2px 9px;border-radius:999px;background:#fff;border:1.5px solid #fdba74;color:#c2410c;font-size:12px;font-weight:800;font-style:normal;line-height:1.3}' +
     '#zeta .zy span{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#fff;color:#0d9488;border:1.5px solid #99f6e4}#zeta .zy .h span{background:#f0fdfa}#zeta .zy .g span{background:#f97316;color:#fff;border-color:#f97316;box-shadow:0 4px 12px rgba(249,115,22,.25)}' +
     '#zeta .zy b{margin-top:8px;font-size:13px;font-weight:700;color:#334155}#zeta .zy small{font-size:14px;font-weight:800;color:#0f172a;margin-top:1px}#zeta .zy .h small{color:#0d9488}#zeta .zy .g small{color:#c2410c}' +
     '#zeta .zy em{font-style:normal;font-size:11.5px;font-weight:600;color:#94a3b8;margin-top:1px;white-space:nowrap}' +
-    '#zeta .zm-ask{display:flex;align-items:center;gap:8px;margin-top:12px;padding:4px;text-decoration:none;font-size:14px;color:#475569;font-weight:600}#zeta .zm-ask>svg{color:#0d9488}#zeta .zm-ask span{flex:1}' +
-    '#zeta .zm-ask b{display:inline-flex;align-items:center;gap:5px;color:#15803d;font-weight:800}#zeta .zm-ask b svg{color:#22c55e}' +
+    '#zeta .zm-ask{display:flex;align-items:center;gap:12px;padding:12px 14px;border-top:1px solid #f1f5f9;background:#f0fdf4;text-decoration:none;font-size:14px;color:#475569;font-weight:700}#zeta .zm-ask span{flex:1}' +
+    '#zeta .zm-ask .zr-i{background:#fff;color:#16a34a}#zeta .zm-ask b{display:inline-flex;align-items:center;gap:5px;color:#15803d;font-weight:800}#zeta .zm-ask b svg{color:#22c55e}' +
     '#zeta.zeta-out{border:1px solid #fed7aa;border-radius:16px;background:#fff7ed;overflow:hidden;margin-top:12px}#zeta .ze-o{display:flex;align-items:center;gap:12px;padding:12px 14px;text-decoration:none;color:inherit}' +
     '#zeta .ze-i{flex:0 0 auto;width:42px;height:42px;border-radius:12px;background:#ffedd5;color:#c2410c;display:flex;align-items:center;justify-content:center}#zeta .ze-o small{display:block;font-size:12.5px;color:#64748b;font-weight:600}#zeta .ze-o b{display:block;font-size:16px;font-weight:800;color:#c2410c;margin-top:1px}' +
     '#zeta .ze-o{padding-bottom:4px}#zeta .ze-f,#zeta .ze-ok{margin:0;padding:0 14px 14px}#zeta .ze-t{margin:2px 0 10px;font-size:14px;line-height:1.6;color:#7c2d12;font-weight:600}' +
@@ -52,32 +72,41 @@
     '#zeta .ze-r input[type=tel]:focus{border-color:#f97316;box-shadow:0 0 0 3px rgba(249,115,22,.15)}#zeta .ze-hp{position:absolute;width:1px;height:1px;padding:0;border:0;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);opacity:0;pointer-events:none}#zeta .ze-f{position:relative}' +
     '#zeta .ze-r button{flex:0 0 auto;height:48px;padding:0 20px;border:0;border-radius:12px;background:#f97316;color:#fff;font-size:16px;font-weight:800;cursor:pointer}#zeta .ze-r button:disabled{opacity:.7}' +
     '#zeta .ze-e{margin:8px 0 0;font-size:13px;color:#b91c1c;font-weight:600}#zeta .ze-ok{padding-top:6px;font-size:14.5px;line-height:1.6;color:#15803d;font-weight:700}' +
-    '@media (prefers-reduced-motion:reduce){#zeta .zm-b{animation:none}#zeta summary>svg:last-child{transition:none}}';
+    '@media (max-width:350px){#zetl .zt-f b{font-size:13px}#zetl .zt-p>div{flex-basis:66px}}' +
+    '@media (prefers-reduced-motion:reduce){#zeta .zm-b{animation:none}#zeta summary>svg:last-child,#zetl .zt-f>button{transition:none}}';
 
   function cairoNow() { var p = new Intl.DateTimeFormat('en-CA', { timeZone: 'Africa/Cairo', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date()).split('-'); return new Date(+p[0], +p[1] - 1, +p[2]); }
   function addWork(d, n) { var x = new Date(d); while (n > 0) { x.setDate(x.getDate() + 1); if (x.getDay() !== 5) n--; } return x; }   // Friday off
-  function range() {
+  function range() {   // {a, b, s: «28 – 30 نوفمبر»}
     var t = cairoNow(), a = addWork(t, 1), b = addWork(t, 3);
-    return DAYS[a.getDay()] + ' ' + a.getDate() + (a.getMonth() !== b.getMonth() ? ' ' + MON[a.getMonth()] : '') + ' – ' + DAYS[b.getDay()] + ' ' + b.getDate() + ' ' + MON[b.getMonth()];
+    return { a: a, b: b, s: a.getDate() + (a.getMonth() !== b.getMonth() ? ' ' + MON[a.getMonth()] : '') + ' – ' + b.getDate() + ' ' + MON[b.getMonth()] };
   }
   function waLink(msg) { return 'https://wa.me/' + WA + '?text=' + encodeURIComponent(msg); }
   function here() { return location.origin + location.pathname; }
   function askLink(name) { return waLink('أهلاً Zella Store، عندي سؤال عن ' + name + '\n' + here()); }
-  function one(t) { return '<p class="zm-p">' + t + '</p>'; }
-  function row(k, icon, title, body) { return '<details data-k="' + k + '"><summary>' + ic(icon, 20) + '<span>' + title + '</span>' + DOWN + '</summary><div class="zm-b">' + body + '</div></details>'; }
+  // open row body: icon bubble + title + text + highlighted note
+  function one(icon, t, s, note) { return '<div class="zm-d"><i>' + ic(icon, 20) + '</i><div><b>' + t + '</b><p>' + s + '</p>' + (note ? '<span class="zm-n">' + note + '</span>' : '') + '</div></div>'; }
+  function row(k, icon, title, body) { return '<details data-k="' + k + '"><summary><i class="zr-i">' + ic(icon, 21) + '</i><span>' + title + '</span>' + DOWN + '</summary><div class="zm-b">' + body + '</div></details>'; }
   function offer() {   // one line, two offers (owner 2026-11-26): 1st at its price -> 2nd 50% (buying 2) «أو» 3rd free (buying 3)
     return '<div class="zy"><div><span>' + ic(DROP, 22) + '</span><b>الأولى</b><small>بسعرها</small></div><i></i>' +
       '<div class="h"><span>' + ic(DROP, 22) + '</span><b>التانية</b><small>خصم 50%</small><em>عند شراء قطعتين</em></div><i class="o"><u>أو</u></i>' +
       '<div class="g"><span>' + ic(GIFT, 22) + '</span><b>التالتة</b><small>مجاناً</small><em>عند شراء 3 قطع</em></div></div>';
   }
   function inHTML(name, date, bogo) {
-    return row(0, TRUCK, 'الشحن والتوصيل', one('التوصيل خلال <b>3 أيام عمل</b> كحد أقصى، مع تواصل المندوب قبل الوصول.')) +
-      row(1, CASH, 'الدفع عند الاستلام', one('<b>الدفع نقداً عند الاستلام</b>، مع إمكانية معاينة المنتج قبل الدفع.')) +
-      row(2, SWAP, 'الاستبدال والاسترجاع', one('الاستبدال أو الاسترجاع متاح خلال <b>48 ساعة</b> من الاستلام في حال وجود أي مشكلة بالمنتج، مع إمكانية معاينة الطلب قبل الدفع.')) +
+    return row(0, TRUCK, 'الشحن والتوصيل', one(CAL, 'التوصيل خلال 3 أيام عمل كحد أقصى', 'يتواصل معك المندوب قبل الوصول.', 'التوصيل المتوقع: ' + date.s)) +
+      row(1, HAND, 'الدفع عند الاستلام', one(HAND, 'الدفع نقداً عند الاستلام', 'بدون أي دفع إلكتروني مسبق.', 'يمكنك معاينة المنتج قبل الدفع')) +
+      row(2, SWAP, 'الاستبدال والاسترجاع', one(SHIELD, 'متاح خلال 48 ساعة من الاستلام', 'في حال وجود أي مشكلة بالمنتج.', 'مع إمكانية معاينة الطلب قبل الدفع')) +
       (bogo ? row(3, GIFT, 'العرض الحالي 🎁', offer()).replace('<details ', '<details class="zof" ') : '') +
-      '<a class="zm-ask" href="' + askLink(name) + '" target="_blank" rel="noopener">' + ic(Q, 18) + '<span>لديك استفسار؟</span><b>' + waIcon(15) + 'تواصل معنا عبر واتساب</b></a>';
+      '<a class="zm-ask" href="' + askLink(name) + '" target="_blank" rel="noopener"><i class="zr-i">' + ic(Q, 19) + '</i><span>لديك استفسار؟</span><b>' + waIcon(15) + 'تواصل معنا عبر واتساب</b></a>';
   }
-  function lineHTML(date) { return ic(TRUCK, 20) + '<span>التوصيل المتوقع: <b>' + date + '</b></span>'; }
+  function lineHTML(d) {   // owner 2026-11-27: idea 3, compact (headline big, label small)
+    return '<div class="zt-f"><button type="button" data-o="0"><i>' + ic(TRUCK, 19) + '</i><b>' + d.s + '</b><small>التوصيل المتوقع</small></button>' +
+      '<button type="button" data-o="1"><i>' + ic(HAND, 19) + '</i><b>عند الاستلام</b><small>الدفع</small></button>' +
+      '<button type="button" data-o="2"><i>' + ic(SHIELD, 19) + '</i><b>48 ساعة</b><small>استبدال واسترجاع</small></button></div>' +
+      '<div class="zt-p"><div><u></u><b>النهارده</b><small>تأكيد الطلب</small></div><i></i>' +
+      '<div><u></u><b>' + DAYS[d.a.getDay()] + ' ' + d.a.getDate() + '</b><small>أقرب يوم</small></div><i></i>' +
+      '<div><u></u><b>' + DAYS[d.b.getDay()] + ' ' + d.b.getDate() + '</b><small>آخر موعد</small></div></div>';
+  }
   // sold out (owner 2026-11-26): the customer leaves a phone number; when the perfume is back, the order-confirmation
   // WhatsApp number (cashier app, wa-ship) sends one message by itself. Saved by the worker POST /notifyme {sku, slug, name, phone}.
   var NOTIFY = 'https://zella-cost-sync.amrxvv.workers.dev/notifyme';
@@ -160,7 +189,7 @@
     var anchor = buy || out; if (!anchor || !anchor.parentElement || !name) { if (oe) oe.remove(); if (ln) ln.remove(); return; }
     var slug = decodeURIComponent(location.pathname.split('/')[2] || '');
     var state = (out && !buy) ? 'out' : 'in', date = range(), bogo = state === 'in' && bogoOf(slug) === true;
-    var key = location.pathname + '|' + state + '|' + name + '|' + date + '|' + bogo;
+    var key = location.pathname + '|' + state + '|' + name + '|' + date.s + '|' + bogo;
     if (!oe || oe.dataset.k !== key || !document.body.contains(oe)) {
       addCss();
       var open = oe ? [].map.call(oe.querySelectorAll('details[open]'), function (d) { return d.dataset.k; }) : [];
@@ -176,8 +205,16 @@
     }
     var box = anchor.parentElement, det = document.querySelector('.p_details_container');
     if (state === 'in' && det) {   // direct children of the details column: line #zetl order 3, notes #znf 4, rows #zeta 5 (pdp-layout.js)
-      if (!ln) { ln = document.createElement('div'); ln.id = 'zetl'; }
-      var lh = lineHTML(date); if (ln.innerHTML !== lh) ln.innerHTML = lh;
+      if (!ln) {
+        ln = document.createElement('div'); ln.id = 'zetl';
+        ln.addEventListener('click', function (e) {   // a fact opens its row below
+          var b = e.target.closest('[data-o]'), z = document.getElementById('zeta'); if (!b || !z) return;
+          var d = z.querySelector('details[data-k="' + b.dataset.o + '"]'); if (!d) return;
+          d.open = true; d.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          try { window.clarity && window.clarity('event', 'deliv_fact_' + b.dataset.o); } catch (x) { }
+        });
+      }
+      if (ln.dataset.k !== date.s) { ln.innerHTML = lineHTML(date); ln.dataset.k = date.s; }   // (innerHTML of SVG never equals the source string)
       if (ln.parentElement !== det) det.appendChild(ln);
       if (oe.parentElement !== det) det.appendChild(oe);
     } else {
