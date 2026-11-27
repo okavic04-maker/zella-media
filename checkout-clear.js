@@ -265,6 +265,12 @@
         var v = tn.nodeValue.replace(/(\d[\d,]*)\.\d+/g, function (m, a) { return String(Math.ceil(parseFloat(m.replace(/,/g, '')))); });
         if (v !== tn.nodeValue) tn.nodeValue = v;
       });
+      // theme text «🚚 أنت على بُعد … من الشحن المجاني! 🚚»: one truck, at the end (owner's emoji rule, 2026-11-27)
+      var t = sp.textContent.trim();
+      if (/^🚚/.test(t) && /🚚$/.test(t)) {
+        var w = document.createTreeWalker(sp, NodeFilter.SHOW_TEXT), n;
+        while ((n = w.nextNode())) { if (/\S/.test(n.nodeValue)) { if (/^\s*🚚/.test(n.nodeValue)) n.nodeValue = n.nodeValue.replace(/^\s*🚚\s*/, ''); break; } }
+      }
     });
   }
 
