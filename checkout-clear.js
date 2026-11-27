@@ -41,6 +41,8 @@
     '.zck-coupon svg{display:none}' +
     '#zck-ph{display:block;margin:6px 4px 0;font-size:13px;color:#b45309}' +
     '#zck-ph.ok{color:#15803d}' +
+    // 2026-11-27: while our hint («فاضل 6 أرقام» …) shows, the theme's own «يجب ان يحتوي علي الاقل علي 11 ارقام» is hidden (one message only)
+    '#zck-ph:not(:empty)~p.text-red-600{display:none}' +
     '#zck-back{position:fixed;inset:0;z-index:99999;background:rgba(15,23,42,.45);display:flex;align-items:flex-end}' +
     '#zck-back>div{width:100%;background:#fff;border-radius:18px 18px 0 0;padding:20px 18px 24px;direction:rtl;text-align:center}' +
     '#zck-back h4{font-size:18px;font-weight:800;margin:0 0 6px;color:#0f172a}' +
