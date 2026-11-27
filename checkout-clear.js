@@ -369,8 +369,15 @@
     if (/^\/checkout/.test(p)) checkout();
     else if (/^\/thanks/.test(p)) thanks();
   }
-  var t;
-  new MutationObserver(function () { if (t) return; t = setTimeout(function () { t = 0; run(); }, 120); })
-    .observe(document.documentElement, { childList: true, subtree: true, characterData: true });
+  var t, now = 0;
+  new MutationObserver(function () {
+    // 2026-11-27 (checkout CLS 0.25–0.56): on /checkout apply the changes in the same frame the theme draws the form
+    // (MutationObserver runs before the paint), so labels / summary / hidden blocks never move the page after it shows.
+    if (/^\/checkout/.test(location.pathname) && !now) {
+      now = 1; try { run(); } catch (e) { }
+      (window.requestAnimationFrame || setTimeout)(function () { try { run(); } catch (e) { } now = 0; });   // again right before the paint
+    }
+    if (t) return; t = setTimeout(function () { t = 0; run(); }, 120);
+  }).observe(document.documentElement, { childList: true, subtree: true, characterData: true });
   run();
 })();
