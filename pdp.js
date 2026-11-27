@@ -369,6 +369,7 @@
   var css =
     '#znf.za .zn-tg .zn-n{opacity:0;transform:translateY(10px) scale(.8)}#znf.za .zn-tg>hr{transform:scaleX(0)}' +
     '#znf.za.zgo .zn-tg .zn-n{animation:zan .5s cubic-bezier(.2,.8,.2,1.2) var(--d) both}#znf.za.zgo .zn-tg>hr{animation:zah .5s ease-out var(--d) both}' +
+    '#znf.za.zdone .zn-tg .zn-n,#znf.za.zdone .zn-tg>hr{opacity:1!important;transform:none!important}' +   /* safety: shown even if the animation never ran */
     '@keyframes zan{from{opacity:0;transform:translateY(10px) scale(.8)}to{opacity:1;transform:none}}@keyframes zah{from{transform:scaleX(0)}to{transform:scaleX(1)}}' +
     '#znf.za.zgo .zn-tg .zn-n img{animation:zag 1s ease-out calc(var(--d) + .3s) both}@keyframes zag{0%{box-shadow:0 0 0 0 rgba(20,184,166,.35),0 0 0 1px #e2e8f0}100%{box-shadow:0 0 0 10px rgba(20,184,166,0),0 0 0 1px #e2e8f0}}' +
     '#zeta .zy.zgo>div{animation:zan .45s cubic-bezier(.2,.8,.2,1.2) both}#zeta .zy.zgo>div:nth-of-type(2){animation-delay:.5s}#zeta .zy.zgo>div:nth-of-type(3){animation-delay:1.05s}' +
@@ -386,7 +387,7 @@
       [].forEach.call(el.querySelectorAll('.zn-n'), function (n, i) { n.style.setProperty('--d', (d + i * .08).toFixed(2) + 's'); });
       d += .35 + el.querySelectorAll('.zn-n').length * .08;
     });
-    var io = new IntersectionObserver(function (es) { if (es[0].isIntersecting && es[0].intersectionRatio > .35) { io.disconnect(); f.classList.add('zgo'); } }, { threshold: [0, .35, .7] });
+    var io = new IntersectionObserver(function (es) { if (es[0].isIntersecting && es[0].intersectionRatio > .35) { io.disconnect(); f.classList.add('zgo'); setTimeout(function () { f.classList.add('zdone'); }, (d + 1.6) * 1000); } }, { threshold: [0, .35, .7] });
     io.observe(f);
   }
   document.addEventListener('toggle', function (e) {
@@ -406,6 +407,7 @@
     '@keyframes zai1{from{transform:rotateY(0)}to{transform:rotateY(360deg)}}@keyframes zai2{from{transform:rotate(0)}to{transform:rotate(180deg)}}' +
     '@keyframes zai3{0%,100%{transform:rotate(0)}20%{transform:rotate(-14deg)}40%{transform:rotate(11deg)}60%{transform:rotate(-6deg)}80%{transform:rotate(3deg)}}' +
     '#zeta .ze-i.zring svg{transform-origin:50% 10%;animation:zring 1s ease-in-out 2}@keyframes zring{0%,100%{transform:rotate(0)}15%{transform:rotate(18deg)}30%{transform:rotate(-16deg)}45%{transform:rotate(11deg)}60%{transform:rotate(-7deg)}75%{transform:rotate(3deg)}}' +
+    '#zalt.zdone a{opacity:1!important;transform:none!important}' +
     '#zalt.zaw a{opacity:0;transform:translateY(14px)}#zalt.zaw.zgo a{animation:zan2 .5s cubic-bezier(.2,.8,.2,1) both}#zalt.zaw.zgo a:nth-child(2){animation-delay:.15s}#zalt.zaw.zgo a:nth-child(3){animation-delay:.3s}@keyframes zan2{to{opacity:1;transform:none}}' +
     '.zas-o{text-decoration:none!important;position:relative;display:inline-block}.zas-o::after{content:"";position:absolute;right:-2px;left:-2px;top:52%;height:1.5px;background:currentColor;transform-origin:right;transform:scaleX(0)}.zas-o.zgo::after{animation:zah2 .5s ease-out .2s both}@keyframes zah2{to{transform:scaleX(1)}}' +
     '.zas-n.zgo{animation:zpn 1.2s ease-out .6s both}@keyframes zpn{0%,100%{text-shadow:none}40%{text-shadow:0 0 12px rgba(20,184,166,.55)}}' +
@@ -427,7 +429,7 @@
     var ok = document.querySelector('#zeta .ze-ok');
     if (ok && !ok.__z && bi) { ok.__z = 1; bi.classList.remove('zring'); void bi.offsetWidth; bi.classList.add('zring'); setTimeout(function () { bi.classList.remove('zring'); }, 2100); }
     var za = document.getElementById('zalt');
-    if (za && !za.__z && za.querySelector('a')) { za.__z = 1; za.classList.add('zaw'); once(za, function () { za.classList.add('zgo'); }, .4); }
+    if (za && !za.__z && za.querySelector('a')) { za.__z = 1; za.classList.add('zaw'); once(za, function () { za.classList.add('zgo'); setTimeout(function () { za.classList.add('zdone'); }, 1400); }, .4); }
     var det = document.querySelector('.p_details_container'); if (!det) return;
     var o = [].filter.call(det.querySelectorAll('p,span,del,s'), function (x) {
       return x.childElementCount === 0 && /\d/.test(x.textContent) && !x.closest('#zella-related,#zalt,#zeta,#znf,.home_grid_section_card') && /line-through/.test(getComputedStyle(x).textDecorationLine + ' ' + x.className);
