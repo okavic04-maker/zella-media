@@ -1,4 +1,4 @@
-/* Zella product page bundle (built 2026-11-26): eta.js (line, notes, rows) + notes-frame.js + pdp-layout.js. Sources in code/. */
+/* Zella product page bundle (built 2026-11-26): eta.js (line, notes, rows) + notes-frame.js + pdp-layout.js + pdp-motion.js. Sources in code/. */
 /* Zella: delivery + store info on the product page (owner 2026-11-26, athrscents-style «C»).
    In stock (owner 2026-11-26 order): line #zetl (flex order 3, after «إصدارات تانية») -> notes frame #znf (order 4,
      notes-frame.js, always open) -> rows #zeta (order 5) -> the rest of the page (order 6), see pdp-layout.js:
@@ -352,4 +352,40 @@
     if (im && im.loading === 'lazy') { im.loading = 'eager'; im.setAttribute('fetchpriority', 'high'); }
   }
   setInterval(run, 300); run();
+})();
+;
+/* Zella: motion on the product page (owner 2026-11-27, from preview/anim-prev.js):
+   - notes frame #znf: the first time it is well in view, top notes come in, then heart, then base (lines between draw);
+   - offer row #zeta details.zof: each time it opens, الأولى -> line -> التانية -> «أو» -> التالتة appear in turn, the gift shakes.
+   Off under prefers-reduced-motion. */
+(function () {
+  if (window.__zellaMotion) return; window.__zellaMotion = 1;
+  var css =
+    '#znf.za .zn-tg .zn-n{opacity:0;transform:translateY(10px) scale(.8)}#znf.za .zn-tg>hr{transform:scaleX(0)}' +
+    '#znf.za.zgo .zn-tg .zn-n{animation:zan .5s cubic-bezier(.2,.8,.2,1.2) var(--d) both}#znf.za.zgo .zn-tg>hr{animation:zah .5s ease-out var(--d) both}' +
+    '@keyframes zan{from{opacity:0;transform:translateY(10px) scale(.8)}to{opacity:1;transform:none}}@keyframes zah{from{transform:scaleX(0)}to{transform:scaleX(1)}}' +
+    '#znf.za.zgo .zn-tg .zn-n img{animation:zag 1s ease-out calc(var(--d) + .3s) both}@keyframes zag{0%{box-shadow:0 0 0 0 rgba(20,184,166,.35),0 0 0 1px #e2e8f0}100%{box-shadow:0 0 0 10px rgba(20,184,166,0),0 0 0 1px #e2e8f0}}' +
+    '#zeta .zy.zgo>div{animation:zan .45s cubic-bezier(.2,.8,.2,1.2) both}#zeta .zy.zgo>div:nth-of-type(2){animation-delay:.5s}#zeta .zy.zgo>div:nth-of-type(3){animation-delay:1.05s}' +
+    '#zeta .zy.zgo>i{transform-origin:right;animation:zah .4s ease-out both}#zeta .zy.zgo>i:nth-of-type(1){animation-delay:.2s}#zeta .zy.zgo>i:nth-of-type(2){animation-delay:.75s}' +
+    '#zeta .zy.zgo>i u{display:inline-block;animation:zan .35s ease-out .85s both}' +
+    '#zeta .zy.zgo .g span{animation:zan .45s cubic-bezier(.2,.8,.2,1.2) 1.05s both,zas .6s ease-in-out 1.6s 2}@keyframes zas{0%,100%{transform:rotate(0)}20%{transform:rotate(-12deg)}40%{transform:rotate(10deg)}60%{transform:rotate(-6deg)}80%{transform:rotate(4deg)}}' +
+    '@media (prefers-reduced-motion:reduce){#znf.za .zn-tg .zn-n,#znf.za .zn-tg>hr{opacity:1!important;transform:none!important;animation:none!important}#zeta .zy.zgo *,#zeta .zy.zgo>*{animation:none!important}}';
+  var st = document.createElement('style'); st.id = 'zanim-css'; st.textContent = css; document.head.appendChild(st);
+  function notes() {
+    var f = document.getElementById('znf'); if (!f || f.__za || !f.querySelector('.zn-tg')) return;
+    f.__za = 1; f.classList.add('za');
+    var d = 0;
+    [].forEach.call(f.querySelector('.zn-tg').children, function (el) {
+      if (el.tagName === 'HR') { el.style.setProperty('--d', d + 's'); d += .25; return; }
+      [].forEach.call(el.querySelectorAll('.zn-n'), function (n, i) { n.style.setProperty('--d', (d + i * .08).toFixed(2) + 's'); });
+      d += .35 + el.querySelectorAll('.zn-n').length * .08;
+    });
+    var io = new IntersectionObserver(function (es) { if (es[0].isIntersecting && es[0].intersectionRatio > .35) { io.disconnect(); f.classList.add('zgo'); } }, { threshold: [0, .35, .7] });
+    io.observe(f);
+  }
+  document.addEventListener('toggle', function (e) {
+    var d = e.target; if (!d.matches || !d.matches('#zeta details.zof') || !d.open) return;
+    var y = d.querySelector('.zy'); if (!y) return; y.classList.remove('zgo'); void y.offsetWidth; y.classList.add('zgo');
+  }, true);
+  setInterval(notes, 400); notes();
 })();
