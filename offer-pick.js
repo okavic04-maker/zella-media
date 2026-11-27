@@ -524,7 +524,10 @@
       })[0];
       anchor = buy && buy.parentNode;
       if (!anchor) return;
-      if (box && box.previousElementSibling === anchor) return;
+      // 2026-11-27: unbox.js keeps its video row #zub-pp right after the buttons too; sit under it instead of fighting
+      // it (both moved each other every ~700 ms on the ad perfumes' pages: CLS 1.9, this box rebuilt each time)
+      var pv = box && box.previousElementSibling;
+      if (box && (pv === anchor || pv && pv.id === 'zub-pp' && pv.previousElementSibling === anchor)) return;
       list = products.filter(function (p) { return p.slug !== slug; });
       title = 'كمّل أنواع الفيديو 🎬';
     } else {
@@ -555,7 +558,7 @@
       '<div class="zop-t">' + TRUST.map(function (t) { return '<span><i>' + t[0] + '</i>' + t[1] + '</span>'; }).join('') + '</div>' +
       (REVIEWS.length ? '<div class="zop-rh">' + (O.revTitle || 'آراء عملاءنا في الأنواع دي ⭐') + (seenReview() ? '' : '<small>دوس على أي ريفيو عشان تفتحه 👆</small>') + '</div><div class="zop-r">' +
         REVIEWS.map(function (f, i) { return '<img src="' + REV_BASE + f + '" data-i="' + i + '" alt="" decoding="async">'; }).join('') + '</div>' : '');
-    if (slug) anchor.parentNode.insertBefore(box, anchor.nextSibling);
+    if (slug) { var nx = anchor.nextElementSibling, at = nx && nx.id === 'zub-pp' ? nx : anchor; at.parentNode.insertBefore(box, at.nextSibling); }
     else anchor.parentNode.insertBefore(box, anchor);
     startVideo(box);
   }
