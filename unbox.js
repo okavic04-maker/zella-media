@@ -280,6 +280,7 @@
   function start() {
     new MutationObserver(function () { if (t) return; t = setTimeout(function () { t = 0; render(); newestFirst(); }, 120); }).observe(document.body, { childList: true, subtree: true }); // runs at least every 120ms while the page keeps changing
     render(); newestFirst();
+    document.addEventListener('zella:reviews', function () { try { render(); } catch (e) { } });   // 2026-11-27: draw #zub right after bogo.js adds the reviews row
   }
   var gone;
   function go() { // start as soon as React has taken over the page (or at load), so its first render isn't disturbed
