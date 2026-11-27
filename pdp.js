@@ -10,8 +10,9 @@
      last a small line «لديك استفسار؟ تواصل معنا عبر واتساب» (WhatsApp with the perfume name).
      Facts = the store policies (EasyOrders → سياسات المتجر). Clarity event deliv_info_<k> when a row opens.
      The theme's policy rows at the bottom and wa-help.js's #zwa-p line are hidden on product pages (pdp-layout.js).
-   2026-11-27 (owner picked idea 3 of preview/eta-ideas.js): the line #zetl is now a card: 3 facts (delivery dates / COD /
-     48 h exchange, a tap opens that row, Clarity deliv_fact_<k>) + a path «النهارده -> أقرب يوم -> آخر موعد»; the rows are one
+   2026-11-27 (owner, idea 3 of preview/eta-ideas.js, then only the delivery fact + idea 5 of preview/path-ideas.js): #zetl is a card
+     «التوصيل المتوقع <dates>» whose path «النهارده -> أقرب يوم -> آخر موعد» is folded and opens by itself once per product page
+     when the card is in view (draws itself); the header row folds / opens it (Clarity deliv_path_open); the rows are one
      card with icon tiles, an open row = icon bubble + title + text + highlighted note; WhatsApp line is the card's footer.
    Sold out («نفذ المخزون» only): orange card «خلص دلوقتي / بلّغني لما يرجع» right after the buttons, above smart-search.js's
      «بدائل متاحة» box (#zalt): phone field + «بلّغني» -> worker POST /notifyme; the cashier app's order-confirmation WhatsApp
@@ -38,12 +39,25 @@
     '#zeta{margin:16px 0 4px;direction:rtl;color:#0f172a}#zeta.zeta-out{margin-top:12px}' +
     '#zetl,#zeta,#zetl *,#zeta *{font-family:Almarai,sans-serif!important;letter-spacing:0}' +
     /* top card (owner 2026-11-27, idea 3): 3 facts (tap = open its row below) + delivery path today -> first day -> last day */
-    '#zetl{margin:16px 0 0;direction:rtl;border:1px solid #e2e8f0;border-radius:18px;background:#fff;overflow:hidden;box-shadow:0 1px 2px rgba(15,23,42,.04)}' +
-    '#zetl .zt-f{display:flex}#zetl .zt-f>button{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:3px;padding:11px 4px 9px;border:0;background:none;cursor:pointer;color:inherit;-webkit-tap-highlight-color:transparent;transition:background .2s}' +
-    '#zetl .zt-f>button+button{border-right:1px solid #f1f5f9}#zetl .zt-f>button:active{background:#f0fdfa}#zetl button:focus-visible{outline:2px solid #14b8a6;outline-offset:-2px}' +
-    '#zetl .zt-f i{font-style:normal;width:36px;height:36px;margin-bottom:3px;border-radius:50%;background:#f0fdfa;color:#0d9488;display:flex;align-items:center;justify-content:center;box-shadow:inset 0 0 0 1.5px #99f6e4}' +
-    '#zetl .zt-f b{font-size:14.5px;font-weight:800;color:#0f172a;line-height:1.25;white-space:nowrap}#zetl .zt-f small{font-size:10.5px;color:#94a3b8;font-weight:700;line-height:1.2}' +
-    '#zetl .zt-p{display:flex;align-items:flex-start;padding:9px 12px 10px;background:linear-gradient(180deg,#f8fafc,#fff);border-top:1px solid #f1f5f9}' +
+    '#zetl{margin:16px 0 0;direction:rtl;display:flex;justify-content:center}#zetl .zt-w{width:100%}' +
+    /* owner 2026-11-27: «التوصيل المتوقع» centered in its own rounded frame; the path comes out from under it in a narrower rounded frame */
+    '#zetl .zt-h{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;gap:12px;width:100%;padding:14px 14px 17px;border:1px solid #e2e8f0;border-radius:18px;background:linear-gradient(180deg,#f0fdfa,#fff 75%);box-shadow:0 1px 3px rgba(15,23,42,.05);cursor:pointer;color:inherit;-webkit-tap-highlight-color:transparent}' +
+    '#zetl .zt-all{display:inline-block;margin-right:6px;padding:1px 8px;border-radius:999px;background:#ccfbf1;color:#0f766e;font-size:10.5px;font-weight:800;font-style:normal;line-height:1.6;vertical-align:1px}' +
+    '#zetl .zt-h:focus-visible{outline:2px solid #14b8a6;outline-offset:2px}' +
+    '#zetl .zt-h i{font-style:normal;flex:0 0 44px;height:44px;border-radius:50%;background:#fff;color:#0d9488;display:flex;align-items:center;justify-content:center;box-shadow:inset 0 0 0 1.5px #99f6e4,0 2px 6px rgba(20,184,166,.12)}' +
+    '#zetl .zt-h span{text-align:right}#zetl .zt-h small{display:block;font-size:12px;color:#64748b;font-weight:700;line-height:1.3}#zetl .zt-h b{display:block;font-size:17px;font-weight:800;color:#0f172a;line-height:1.35;white-space:nowrap}' +
+    '#zetl .zt-h>svg{position:absolute;left:50%;bottom:-12px;width:24px;height:24px;margin-left:-12px;padding:4px;box-sizing:border-box;border-radius:50%;background:#fff;border:1px solid #e2e8f0;color:#14b8a6;transition:transform .3s}#zetl:not(.zc) .zt-h>svg{transform:rotate(180deg)}' +
+    /* idea 5 (owner 2026-11-27): the path is folded, opens by itself once when the card is seen, the header row folds / opens it */
+    '#zetl .zt-pw{display:grid;grid-template-rows:1fr;transition:grid-template-rows .45s cubic-bezier(.2,.8,.2,1)}#zetl .zt-pw>div{overflow:hidden;min-height:0}#zetl.zc .zt-pw{grid-template-rows:0fr}' +
+    '#zetl .zt-p{transition:opacity .35s .1s,transform .35s .1s}#zetl.zc .zt-p{opacity:0;transform:translateY(-6px)}' +
+    '#zetl.zd .zt-p>i{transform-origin:right;animation:zpl .45s ease-out both}#zetl.zd .zt-p>i:nth-of-type(1){animation-delay:.25s}#zetl.zd .zt-p>i:nth-of-type(2){animation-delay:.75s}' +
+    '#zetl.zd .zt-p>div{animation:zpd .35s ease-out both}#zetl.zd .zt-p>div:nth-of-type(2){animation-delay:.6s}#zetl.zd .zt-p>div:nth-of-type(3){animation-delay:1.1s}' +
+    /* the little truck drives along the path while it draws, from today to the last day, then the last dot glows (owner 2026-11-27) */
+    '#zetl .zt-car{position:absolute;top:15px;right:36px;width:28px;height:18px;border-radius:9px;background:#fff;box-shadow:0 0 0 1.5px #14b8a6,0 3px 8px rgba(20,184,166,.25);color:#0d9488;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;z-index:1}' +
+    '#zetl .zt-car svg{transform:scaleX(-1)}#zetl.zd .zt-car{animation:zpc 1.5s .2s cubic-bezier(.45,.05,.35,1) both}' +
+    '@keyframes zpc{0%{right:36px;opacity:0}10%{opacity:1}85%{right:calc(100% - 64px);opacity:1}100%{right:calc(100% - 64px);opacity:0}}' +
+    '#zetl.zd .zt-p>div:last-child u{animation:zpg 1.6s 1.4s ease-out 2}@keyframes zpl{from{transform:scaleX(0)}}@keyframes zpd{from{opacity:0;transform:scale(.6)}}@keyframes zpg{50%{box-shadow:0 0 0 8px rgba(20,184,166,.18)}}' +
+    '#zetl .zt-pw{margin:-1px 14px 0}#zetl .zt-p{display:flex;align-items:flex-start;padding:19px 10px 11px;position:relative;border:1px solid #e2e8f0;border-top:0;border-radius:0 0 18px 18px;background:linear-gradient(180deg,#f1f5f9,#f8fafc 40%,#fff)}' +
     '#zetl .zt-p>div{flex:0 0 76px;display:flex;flex-direction:column;align-items:center;text-align:center}#zetl .zt-p>i{flex:1;height:2px;margin-top:4px;border-radius:2px;background:linear-gradient(90deg,#14b8a6,#99f6e4)}' +
     '#zetl .zt-p u{width:10px;height:10px;border-radius:50%;background:#fff;border:2.5px solid #14b8a6}#zetl .zt-p>div:last-child u{background:#14b8a6;box-shadow:0 0 0 4px rgba(20,184,166,.15)}' +
     '#zetl .zt-p b{margin-top:4px;font-size:13px;font-weight:800;color:#0f172a;line-height:1.2;white-space:nowrap}#zetl .zt-p small{font-size:10px;color:#94a3b8;font-weight:700;line-height:1.2}#zetl .zt-p>div:last-child b{color:#0d9488}' +
@@ -72,8 +86,8 @@
     '#zeta .ze-r input[type=tel]:focus{border-color:#f97316;box-shadow:0 0 0 3px rgba(249,115,22,.15)}#zeta .ze-hp{position:absolute;width:1px;height:1px;padding:0;border:0;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);opacity:0;pointer-events:none}#zeta .ze-f{position:relative}' +
     '#zeta .ze-r button{flex:0 0 auto;height:48px;padding:0 20px;border:0;border-radius:12px;background:#f97316;color:#fff;font-size:16px;font-weight:800;cursor:pointer}#zeta .ze-r button:disabled{opacity:.7}' +
     '#zeta .ze-e{margin:8px 0 0;font-size:13px;color:#b91c1c;font-weight:600}#zeta .ze-ok{padding-top:6px;font-size:14.5px;line-height:1.6;color:#15803d;font-weight:700}' +
-    '@media (max-width:350px){#zetl .zt-f b{font-size:13px}#zetl .zt-p>div{flex-basis:66px}}' +
-    '@media (prefers-reduced-motion:reduce){#zeta .zm-b{animation:none}#zeta summary>svg:last-child,#zetl .zt-f>button{transition:none}}';
+    '@media (max-width:350px){#zetl .zt-p>div{flex-basis:66px}#zetl .zt-h b{font-size:15px}#zetl .zt-h{gap:10px;padding-left:10px;padding-right:10px}}' +
+    '@media (prefers-reduced-motion:reduce){#zeta .zm-b{animation:none}#zeta summary>svg:last-child,#zetl *{transition:none!important;animation:none!important}}';
 
   function cairoNow() { var p = new Intl.DateTimeFormat('en-CA', { timeZone: 'Africa/Cairo', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date()).split('-'); return new Date(+p[0], +p[1] - 1, +p[2]); }
   function addWork(d, n) { var x = new Date(d); while (n > 0) { x.setDate(x.getDate() + 1); if (x.getDay() !== 5) n--; } return x; }   // Friday off
@@ -99,13 +113,25 @@
       (bogo ? row(3, GIFT, 'العرض الحالي 🎁', offer()).replace('<details ', '<details class="zof" ') : '') +
       '<a class="zm-ask" href="' + askLink(name) + '" target="_blank" rel="noopener"><i class="zr-i">' + ic(Q, 19) + '</i><span>لديك استفسار؟</span><b>' + waIcon(15) + 'تواصل معنا عبر واتساب</b></a>';
   }
-  function lineHTML(d) {   // owner 2026-11-27: idea 3, compact (headline big, label small)
-    return '<div class="zt-f"><button type="button" data-o="0"><i>' + ic(TRUCK, 19) + '</i><b>' + d.s + '</b><small>التوصيل المتوقع</small></button>' +
-      '<button type="button" data-o="1"><i>' + ic(HAND, 19) + '</i><b>عند الاستلام</b><small>الدفع</small></button>' +
-      '<button type="button" data-o="2"><i>' + ic(SHIELD, 19) + '</i><b>48 ساعة</b><small>استبدال واسترجاع</small></button></div>' +
-      '<div class="zt-p"><div><u></u><b>النهارده</b><small>تأكيد الطلب</small></div><i></i>' +
+  function lineHTML(d) {   // owner 2026-11-27: only «التوصيل المتوقع» (like his Estimated Delivery example) + the folding path (idea 5)
+    return '<div class="zt-w"><button type="button" class="zt-h" aria-expanded="false"><i>' + ic(TRUCK, 22) + '</i><span><small>التوصيل المتوقع<em class="zt-all">لكل المحافظات</em></small><b>' + DAYS[d.a.getDay()] + ' ' + d.a.getDate() + ' – ' + DAYS[d.b.getDay()] + ' ' + d.b.getDate() + ' ' + MON[d.b.getMonth()] + '</b></span>' + DOWN + '</button>' +
+      '<div class="zt-pw"><div><div class="zt-p"><em class="zt-car">' + ic(TRUCK, 15) + '</em><div><u></u><b>النهارده</b><small>تأكيد الطلب</small></div><i></i>' +
       '<div><u></u><b>' + DAYS[d.a.getDay()] + ' ' + d.a.getDate() + '</b><small>أقرب يوم</small></div><i></i>' +
-      '<div><u></u><b>' + DAYS[d.b.getDay()] + ' ' + d.b.getDate() + '</b><small>آخر موعد</small></div></div>';
+      '<div><u></u><b>' + DAYS[d.b.getDay()] + ' ' + d.b.getDate() + '</b><small>آخر موعد</small></div></div></div></div></div>';
+  }
+  function pathOpen(ln, open) {
+    ln.classList.toggle('zc', !open); var h = ln.querySelector('.zt-h'); if (h) h.setAttribute('aria-expanded', open ? 'true' : 'false');
+    if (open) { ln.classList.remove('zd'); void ln.offsetWidth; ln.classList.add('zd'); }
+  }
+  function pathAuto(ln) {   // once per product page: opens by itself when the card is well in view
+    if (ln.dataset.p === location.pathname) return; ln.dataset.p = location.pathname; pathOpen(ln, false);
+    if (ln.__io) ln.__io.disconnect();
+    if (!('IntersectionObserver' in window)) { pathOpen(ln, true); return; }
+    ln.__io = new IntersectionObserver(function (es) {
+      if (!es[0].isIntersecting || es[0].intersectionRatio < .6) return;
+      ln.__io.disconnect(); setTimeout(function () { if (ln.dataset.p === location.pathname) pathOpen(ln, true); }, 350);
+    }, { threshold: [0, .6, 1] });
+    ln.__io.observe(ln);
   }
   // sold out (owner 2026-11-26): the customer leaves a phone number; when the perfume is back, the order-confirmation
   // WhatsApp number (cashier app, wa-ship) sends one message by itself. Saved by the worker POST /notifyme {sku, slug, name, phone}.
@@ -207,14 +233,15 @@
     if (state === 'in' && det) {   // direct children of the details column: line #zetl order 3, notes #znf 4, rows #zeta 5 (pdp-layout.js)
       if (!ln) {
         ln = document.createElement('div'); ln.id = 'zetl';
-        ln.addEventListener('click', function (e) {   // a fact opens its row below
-          var b = e.target.closest('[data-o]'), z = document.getElementById('zeta'); if (!b || !z) return;
-          var d = z.querySelector('details[data-k="' + b.dataset.o + '"]'); if (!d) return;
-          d.open = true; d.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          try { window.clarity && window.clarity('event', 'deliv_fact_' + b.dataset.o); } catch (x) { }
+        ln.addEventListener('click', function (e) {   // the header row folds / opens the path
+          if (!e.target.closest('.zt-h')) return;
+          if (ln.__io) ln.__io.disconnect();
+          var open = ln.classList.contains('zc'); pathOpen(ln, open);
+          if (open) try { window.clarity && window.clarity('event', 'deliv_path_open'); } catch (x) { }
         });
       }
       if (ln.dataset.k !== date.s) { ln.innerHTML = lineHTML(date); ln.dataset.k = date.s; }   // (innerHTML of SVG never equals the source string)
+      pathAuto(ln);
       if (ln.parentElement !== det) det.appendChild(ln);
       if (oe.parentElement !== det) det.appendChild(oe);
     } else {
