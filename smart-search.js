@@ -425,6 +425,12 @@
   function go(url) {
     closeDD();
     if (ddInput) ddInput.blur();
+    // 2026-11-27 (MuMu test): after a product pick the empty search bar stayed open under the header and pushed the
+    // product page down; close it with the theme's own search button (kept open for «عرض جميع النتائج» -> /search)
+    if (!/^\/search/.test(url)) {
+      var tg = document.querySelector('header button[aria-label="بحث"]');
+      if (tg && ddInput && ddInput.offsetParent) try { tg.click(); } catch (e) { }
+    }
     if (window.next && window.next.router) window.next.router.push(url); else location.href = url;
     window.scrollTo(0, 0);
   }
