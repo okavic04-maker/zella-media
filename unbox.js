@@ -148,7 +148,9 @@
     var slug = m && decodeURIComponent(m[1]);
     var v = m && VIDS.filter(function (x) { return onPage(x, slug); })[0];
     if (!v) { if (old) old.remove(); return; }
-    if (old && old.dataset.s === slug) return;
+    // 2026-11-27 (owner's phone: the row pushed «اضغط هنا للشراء» under the bottom menu): sit under the buy buttons
+    var bw = [].filter.call(document.querySelectorAll('.p_details_container .mt-5.flex.flex-col'), function (el) { return /اضغط هنا للشراء|إتمام الطلب|أضف للسلة|نفذ المخزون/.test(el.textContent); })[0];
+    if (old && old.dataset.s === slug) { if (bw && old.previousElementSibling !== bw) bw.insertAdjacentElement('afterend', old); return; }
     if (old) old.remove();
     var h1 = document.querySelector('h1.product_name');
     if (!h1) return;
@@ -158,7 +160,7 @@
     b.type = 'button'; b.id = 'zub-pp'; b.dataset.s = slug;
     b.innerHTML = '<video src="' + CDN + v.f + '-card.mp4" poster="' + CDN + v.f + '-card.jpg" muted autoplay loop playsinline preload="metadata"></video>'
       + '<span>Watch the real unboxing<small>See the bottle before you order</small></span><i>▶</i>';
-    var at = getComputedStyle(h1.parentElement).display.indexOf('flex') > -1 ? h1.parentElement : h1; // the name sits in a flex row: go under the row
+    var at = bw || (getComputedStyle(h1.parentElement).display.indexOf('flex') > -1 ? h1.parentElement : h1); // under the buy buttons (else under the name row)
     at.insertAdjacentElement('afterend', b);
     muteplay(b);
   }
