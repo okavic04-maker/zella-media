@@ -1,8 +1,8 @@
 
 (function(){var STEP = 3;var OFFER_SECTIONS = ['men', 'women'];var MARQUEE_TEXT = [
-'اشتري 2 واحصل على 1 مجاناً على الرجالي والحريمي 🎁','شحن مجاني على الطلبات من 2000 جنيه 🚚','الدفع عند الاستلام 💵','استبدال واسترجاع مضمون 📦'
+'اشتري 2 واحصل على 1 مجاناً على الرجالي والحريمي 🎁','شحن مجاني على الطلبات من 1500 جنيه 🚚','الدفع عند الاستلام 💵','استبدال واسترجاع مضمون 📦'
 ];var MARQUEE_TEXT_EN = [
-'Buy 2 Get 1 FREE on Men & Women 🎁','Free shipping on orders from 2000 EGP 🚚','Cash on Delivery 💵','Guaranteed Returns & Exchanges 📦'
+'Buy 2 Get 1 FREE on Men & Women 🎁','Free shipping on orders from 1500 EGP 🚚','Cash on Delivery 💵','Guaranteed Returns & Exchanges 📦'
 ];function renderMarquee(){var header = document.querySelector('header.sphinx_header');if (!header||document.getElementById('zella-marquee')) return;var items = '';for (var r = 0; r < 4; r++){MARQUEE_TEXT.forEach(function(t){ items += '<span class="zm-item" dir="rtl">' + t + '</span>'; });MARQUEE_TEXT_EN.forEach(function(t){ items += '<span class="zm-item zm-en" dir="ltr">' + t + '</span>'; });}var bar = document.createElement('div');bar.id = 'zella-marquee';bar.innerHTML = '<div class="zm-track">' + items + items + '</div>';header.insertBefore(bar, header.firstChild);}var sectionCache = {};function isOfferProduct(slug){if (sectionCache[slug]!==undefined) return Promise.resolve(sectionCache[slug]);var build = window.__NEXT_DATA__&&window.__NEXT_DATA__.buildId;if (!build) return Promise.resolve({ offer: true, single: false });sectionCache[slug] = fetch('/_next/data/' + build + '/products/' + encodeURIComponent(slug) + '.json?id=' + encodeURIComponent(slug))
 .then(function(r){ return r.ok ? r.json() : null; })
 .then(function(j){var prod = (j&&j.pageProps&&j.pageProps.product)||{};var cats = prod.categories||[];var info = {offer: cats.some(function(c){ return OFFER_SECTIONS.indexOf(c.slug)!==-1; }),single: (prod.variants||[]).length===1,was: cats.some(function(c){ return c.slug==='savingspackagesoffers'; })&&prod.sale_price ? prod.price : 0
