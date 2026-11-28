@@ -49,7 +49,10 @@
     '@media (prefers-reduced-motion:reduce){#zmp-d .rd span,html.zmp-ty .zmp-in,html.zmp-ty #zmp-ok *,#zdd a.zss-r.zmp-r{animation:none!important}#zmp-d .rd span{right:calc(100% - 24px)}}';
   document.head.appendChild(css);
 
-  function cairoNow() { var p = new Intl.DateTimeFormat('en-CA', { timeZone: 'Africa/Cairo', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date()).split('-'); return new Date(+p[0], +p[1] - 1, +p[2]); }
+  function cairoNow() {   // Cairo date; formatToParts, not en-CA text: WebView 110 (Instagram on older phones) gave «undefined NaN»
+    try { var o = {}; new Intl.DateTimeFormat('en-US', { timeZone: 'Africa/Cairo', year: 'numeric', month: 'numeric', day: 'numeric' }).formatToParts(new Date()).forEach(function (x) { o[x.type] = +x.value; }); var d = new Date(o.year, o.month - 1, o.day); if (!isNaN(d)) return d; } catch (e) {}
+    var n = new Date(); return new Date(n.getFullYear(), n.getMonth(), n.getDate());
+  }
   function addWork(d, n) { var x = new Date(d); while (n > 0) { x.setDate(x.getDate() + 1); if (x.getDay() !== 5) n--; } return x; }   // Friday off
   function dates() { var t = cairoNow(), a = addWork(t, 1), b = addWork(t, 3); return DAYS[a.getDay()] + ' ' + a.getDate() + (a.getMonth() !== b.getMonth() ? ' ' + MON[a.getMonth()] : '') + ' – ' + DAYS[b.getDay()] + ' ' + b.getDate() + ' ' + MON[b.getMonth()]; }
   function seen(el, fn) {   // once on screen (tick: IntersectionObserver never fires in a hidden tab)
