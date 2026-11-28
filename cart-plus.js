@@ -25,6 +25,14 @@
     '.zb-tag:not(.zcap-t){display:none!important}.zcap-t>span{display:inline-block}' +
     '.zcap-pop{animation:zcapPop .5s ease 1}@keyframes zcapPop{0%{transform:scale(.6)}60%{transform:scale(1.15)}100%{transform:scale(1)}}' +
     '#zcap-e{display:block;margin:14px auto 0;width:max-content;padding:11px 26px;border-radius:12px;background:#14b8a6;color:#fff;font:800 15px Almarai,inherit;text-decoration:none}' +
+    /* 2026-11-28 (owner «انشر»): with 2 items on a 737 px phone the second row was hidden under the totals. Compact: drop the struck
+       «اجمالي المنتجات» row when #zella-totals repeats it, less padding, and no «مبروك!…» line in the bar (the row tag says it). */
+    '[data-invoice="invoice"]:has(#zella-totals)>div:first-child{display:none!important}' +
+    '#zella-totals .zt-row{margin:2px 0!important}' +
+    '[data-cart="panel-inner"]>div:last-child{padding-top:10px!important;padding-bottom:10px!important}' +
+    '[data-cart="panel-inner"] li.cart-item{padding-top:12px!important;padding-bottom:12px!important}' +
+    '[data-cart="panel-inner"]>div:first-child{padding-top:14px!important}' +
+    '#zella-bogo-bar .zb-msg .zb-ok{display:none!important}' +
     '@media (prefers-reduced-motion:reduce){.zcap-pop{animation:none}}';
   document.head.appendChild(css);
 
