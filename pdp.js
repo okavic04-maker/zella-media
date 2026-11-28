@@ -91,7 +91,10 @@
     '@media (max-width:350px){#zetl .zt-p>div{flex-basis:66px}#zetl .zt-h b{font-size:15px}#zetl .zt-h{gap:10px;padding-left:10px;padding-right:10px}}' +
     '@media (prefers-reduced-motion:reduce){#zeta .zm-b{animation:none}#zeta summary>svg:last-child,#zetl *{transition:none!important;animation:none!important}}';
 
-  function cairoNow() { var p = new Intl.DateTimeFormat('en-CA', { timeZone: 'Africa/Cairo', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date()).split('-'); return new Date(+p[0], +p[1] - 1, +p[2]); }
+  function cairoNow() {   // Cairo date; formatToParts, not en-CA text: WebView 110 (Instagram on older phones) gave «undefined NaN»
+    try { var o = {}; new Intl.DateTimeFormat('en-US', { timeZone: 'Africa/Cairo', year: 'numeric', month: 'numeric', day: 'numeric' }).formatToParts(new Date()).forEach(function (x) { o[x.type] = +x.value; }); var d = new Date(o.year, o.month - 1, o.day); if (!isNaN(d)) return d; } catch (e) {}
+    var n = new Date(); return new Date(n.getFullYear(), n.getMonth(), n.getDate());
+  }
   function addWork(d, n) { var x = new Date(d); while (n > 0) { x.setDate(x.getDate() + 1); if (x.getDay() !== 5) n--; } return x; }   // Friday off
   function range() {   // {a, b, s: «28 – 30 نوفمبر»}
     var t = cairoNow(), a = addWork(t, 1), b = addWork(t, 3);
