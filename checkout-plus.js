@@ -2,6 +2,7 @@
    preview/checkout-plus.full.js). Runs on /checkout next to checkout-clear.js.
    4) A turquoise ✓ inside each field once it is valid (name 3+ letters, Egyptian mobile 01x + 8 digits, address 8+).
    7) The trust lines under the order button appear one after the other the first time they are on screen.
+   5b) (2026-11-28, owner) the order button glows once when name, phone, governorate and address are all valid.
    Both use opacity/transform only (no layout shift), run once, are off under prefers-reduced-motion, and the trust
    lines are forced visible after 2.5 s if the motion never runs. */
 (function () {
@@ -15,7 +16,8 @@
     '.zcp-v .zcp-ok{opacity:1;transform:translateY(-50%) scale(1)}' +
     '.zc-trust.zcp-t>*{opacity:0;transform:translateY(6px);transition:opacity .4s,transform .4s}.zc-trust.zcp-t.in>*{opacity:1;transform:none}' +
     '.zc-trust.zcp-t.in>*:nth-child(2){transition-delay:.15s}.zc-trust.zcp-t.in>*:nth-child(3){transition-delay:.3s}' +
-    '@media (prefers-reduced-motion:reduce){.zcp-ok,.zc-trust.zcp-t>*{transition:none!important}}';
+    '.checkout_button button.zcp-ready{animation:zcpGlow 1.2s ease 1}@keyframes zcpGlow{0%{box-shadow:0 0 0 0 rgba(20,184,166,.6)}100%{box-shadow:0 0 0 14px rgba(20,184,166,0)}}' +
+    '@media (prefers-reduced-motion:reduce){.zcp-ok,.zc-trust.zcp-t>*{transition:none!important}.checkout_button button.zcp-ready{animation:none}}';
   document.head.appendChild(css);
 
   var V = {
@@ -24,15 +26,23 @@
     address: function (v) { return v.trim().length >= 8; }
   };
 
+  var wasReady = false;
   function checks() {
+    var all = true;
     Object.keys(V).forEach(function (k) {
       var el = document.querySelector('[name="' + k + '"]');
       if (!el) return;
       var box = el.closest('div.relative') || el.parentElement;
       if (!box.querySelector('.zcp-ok')) { var c = document.createElement('span'); c.className = 'zcp-ok'; c.textContent = '✓'; box.appendChild(c); }
       var ok = V[k](el.value);
+      if (!ok) all = false;
       if (box.classList.contains('zcp-v') !== ok) box.classList.toggle('zcp-v', ok);
     });
+    var g = document.querySelector('[name="government"]');
+    var ready = all && !!(g && g.value) && !!document.querySelector('[name="full_name"]');
+    var b = document.querySelector('.checkout_button button');
+    if (b && ready && !wasReady && !RM) { b.classList.remove('zcp-ready'); void b.offsetWidth; b.classList.add('zcp-ready'); }
+    wasReady = ready;
   }
 
   function trust() {
