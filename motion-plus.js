@@ -55,7 +55,7 @@
   function seen(el, fn) {   // once on screen (tick: IntersectionObserver never fires in a hidden tab)
     var t = setInterval(function () { if (!el.isConnected) return clearInterval(t); var r = el.getBoundingClientRect(); if (r.top < innerHeight - 40 && r.bottom > 0) { clearInterval(t); fn(); } }, 250);
   }
-  function dd(label) { var dts = document.querySelectorAll('dt'); for (var i = 0; i < dts.length; i++) if (dts[i].textContent.trim() === label && dts[i].nextElementSibling) { var n = parseFloat(dts[i].nextElementSibling.textContent.replace(/[^\d.]/g, '')); if (!isNaN(n)) return n; } return null; }
+  function dd(label) { var dts = document.querySelectorAll('dt'); for (var i = 0; i < dts.length; i++) if (dts[i].textContent.trim() === label && dts[i].nextElementSibling) { if (/مجاني/.test(dts[i].nextElementSibling.textContent)) return 0; var n = parseFloat(dts[i].nextElementSibling.textContent.replace(/[^\d.]/g, '')); if (!isNaN(n)) return n; } return null; }
 
   // 4) checkout delivery card
   function checkout() {
