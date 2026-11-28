@@ -5,6 +5,7 @@
    2) Offer bar: the progress line grows from where it was (not a jump); when a set completes, a few sparkles burst
       around the bar and the bar glows once.
    3) Shipping line: a small truck rides at the front of the shipping line and moves with it.
+   4) (2026-11-28, owner) «وفّرت X ج.م» counts up from the old number to the new one (0.7 s).
  */
 (function () {
   if (window.__zCartMotion) return;
@@ -84,7 +85,7 @@
   }, true);
 
   // 2-3) the offer bar
-  var lastFree = null, lastShip = null;
+  var lastFree = null, lastShip = null, lastSaved = null, counting = null;
   function freeCount() { var m = (document.querySelector('#zella-bogo-bar .zb-next') || {}).textContent; m = m && m.match(/\((\d+) مجاناً\)/); return m ? +m[1] : 0; }
   function sparkle(bar) {
     if (RM) return;
@@ -105,18 +106,33 @@
     if (lastShip !== null && lastShip !== to && !RM) { f.style.transition = 'none'; f.style.width = lastShip; void f.offsetWidth; f.style.transition = ''; requestAnimationFrame(function () { f.style.width = to; }); }
     lastShip = to;
   }
+  function saved(el) {
+    var m = el.textContent.match(/وفّرت ([\d,]+) ج\.م/); if (!m) { lastSaved = null; return; }
+    var to = +m[1].replace(/,/g, '');
+    if (lastSaved === null || to === lastSaved || RM || counting) { lastSaved = to; return; }
+    var from = lastSaved, t0 = performance.now(), base = el.textContent;
+    lastSaved = to;
+    counting = function (now) {
+      var k = Math.min(1, (now - t0) / 700), v = Math.round(from + (to - from) * (1 - Math.pow(1 - k, 3)));
+      if (!el.isConnected || el.textContent.indexOf('وفّرت') < 0) { counting = null; return; }
+      el.textContent = base.replace(/وفّرت [\d,]+ ج\.م/, 'وفّرت ' + v.toLocaleString('en-US') + ' ج.م');
+      if (k < 1) requestAnimationFrame(counting); else counting = null;
+    };
+    requestAnimationFrame(counting);
+  }
   function bar() {
     // the last numbers are kept while the cart is closed, so reopening it after an add still animates the change
     var b = document.getElementById('zella-bogo-bar'); if (!b) return;
     var fc = freeCount();
     if (lastFree !== null && fc > lastFree) setTimeout(function () { if (b.isConnected) sparkle(b); }, 450);   // after the cart slides in
     lastFree = fc;
+    var nx = b.querySelector('.zb-next'); if (nx && !counting) saved(nx);
     ship(b);
   }
 
   function tick() { try { bar(); } catch (e) {} }
   var q = false;
   new MutationObserver(function () { if (q) return; q = true; requestAnimationFrame(function () { q = false; tick(); }); }).observe(document.body, { childList: true, subtree: true, characterData: true });
-  window.__zcm = { fly: fly, sparkle: function () { var b = document.getElementById('zella-bogo-bar'); if (b) sparkle(b); }, bump: bump };
+  window.__zcm = { count: function () { var nx = document.querySelector('#zella-bogo-bar .zb-next'); if (!nx || counting) return; var m = nx.textContent.match(/وفّرت ([\d,]+) ج\.م/); if (!m) return; lastSaved = 0; var to = m[1]; nx.textContent = nx.textContent.replace(/وفّرت [\d,]+ ج\.م/, 'وفّرت 0 ج.م'); lastSaved = 0; var real = nx.textContent.replace('وفّرت 0 ج.م', 'وفّرت ' + to + ' ج.م'); nx.textContent = real; lastSaved = 0; saved(nx); }, fly: fly, sparkle: function () { var b = document.getElementById('zella-bogo-bar'); if (b) sparkle(b); }, bump: bump };
   tick();
 })();
