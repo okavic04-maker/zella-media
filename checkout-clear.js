@@ -152,8 +152,9 @@
     }
 
     // 2) shorter page: free-shipping bar off, coupon as a small link
+    //    (2026-11-28: also the theme's «مبروك! لقد حصلت على شحن مجاني!» box, more common since free shipping is 1500)
     [].forEach.call(document.querySelectorAll('span'), function (sp) {
-      if (sp.childElementCount > 2 || !/الشحن المجاني/.test(sp.textContent)) return;
+      if (sp.childElementCount > 2 || !/الشحن المجاني|شحن مجاني/.test(sp.textContent)) return;
       var w = sp.parentElement && sp.parentElement.parentElement;
       if (w && w.querySelector('[style*="width"]') && !w.classList.contains('zck-hide')) w.classList.add('zck-hide');
     });
